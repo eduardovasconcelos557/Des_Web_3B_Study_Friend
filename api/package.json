@@ -1,0 +1,10 @@
+{
+  "name": "api-landing-page",
+  "version": "1.0.0",
+  "description": "API em Python (FastAPI + Uvicorn) para captura de leads da Landing Page",
+  "main": "main.py",
+  "scripts": {
+    "start": "python main.py",
+    "dev": "python main.py"
+  }
+}
