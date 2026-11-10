@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Registrar from './pages/Registrar'
 import AdminCMS from './pages/AdminCMS'
+import { ProvedorIdioma } from './i18n/IdiomaContexto'
 
 function ConteudoInterno() {
   const [pagina, setPagina] = useState('inicio')
@@ -22,7 +23,8 @@ function ConteudoInterno() {
   const navegar = (novaPagina, novosParametros = {}) => {
     setPagina(novaPagina)
     setParametros(novosParametros)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    const movimentoReduzido = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    window.scrollTo({ top: 0, behavior: movimentoReduzido ? 'auto' : 'smooth' })
   }
 
   const exibirToast = (mensagem, tipo = 'sucesso') => {
@@ -86,8 +88,8 @@ function ConteudoInterno() {
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
-      <Navbar aoNavegar={navegar} />
-      <main className="flex-1 pt-24 sm:pt-32">
+      <Navbar pagina={pagina} aoNavegar={navegar} />
+      <main className="flex-1 pb-24 pt-24 sm:pt-32 md:pb-0">
         {renderPagina()}
       </main>
       <Toast
@@ -102,8 +104,10 @@ function ConteudoInterno() {
 
 export default function App() {
   return (
-    <ProvedorAutenticacao>
-      <ConteudoInterno />
-    </ProvedorAutenticacao>
+    <ProvedorIdioma>
+      <ProvedorAutenticacao>
+        <ConteudoInterno />
+      </ProvedorAutenticacao>
+    </ProvedorIdioma>
   )
 }

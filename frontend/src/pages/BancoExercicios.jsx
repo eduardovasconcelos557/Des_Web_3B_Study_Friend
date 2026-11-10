@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import api from '../servicos/api'
 import { usarAutenticacao } from '../contextos/AutenticacaoContexto'
+import { usarIdioma } from '../i18n/IdiomaContexto'
 
 export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaNomeFiltro }) {
   const { autenticado } = usarAutenticacao()
+  const { t, tDisciplina, tConteudo } = usarIdioma()
   const [questoes, setQuestoes] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [nivelFiltro, setNivelFiltro] = useState('')
@@ -44,17 +46,19 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
     const selecionada = respostasEnviadas[qId] === letra
     if (correta) return 'bg-emerald-500/15 border-emerald-500 text-emerald-300'
     if (selecionada && !correta) return 'bg-rose-500/15 border-rose-500 text-rose-300'
-    return 'bg-slate-950 border-slate-800 text-slate-500'
+    return 'bg-slate-950 border-slate-800 text-slate-400'
   }
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-white mb-1">
-          {topicoIdFiltro ? `Exercícios — ${disciplinaNomeFiltro || 'Tópico'}` : 'Banco de Exercícios'}
+          {topicoIdFiltro
+            ? t('exercicios.tituloTopico', { nome: tDisciplina(disciplinaNomeFiltro || t('exercicios.topicoFallback')) })
+            : t('exercicios.tituloBanco')}
         </h1>
         <p className="text-sm text-slate-400">
-          {autenticado ? 'Resolva as questões e acompanhe seu progresso.' : 'Faça login para salvar seu progresso.'}
+          {autenticado ? t('exercicios.subAutenticado') : t('exercicios.subDesautenticado')}
         </p>
       </div>
 
@@ -64,13 +68,14 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
             <button
               key={n}
               onClick={() => setNivelFiltro(n)}
+              aria-pressed={nivelFiltro === n}
               className={`text-sm px-4 py-1.5 rounded-lg border transition ${
                 nivelFiltro === n
                   ? 'bg-cyan-500 border-cyan-500 text-slate-950 font-semibold'
                   : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'
               }`}
             >
-              {n === '' ? 'Todos' : n === 'FACIL' ? 'Fácil' : n === 'MEDIO' ? 'Médio' : 'Difícil'}
+              {n === '' ? t('comum.todos') : n === 'FACIL' ? t('exercicios.facil') : n === 'MEDIO' ? t('exercicios.medio') : t('exercicios.dificil')}
             </button>
           ))}
         </div>
@@ -79,22 +84,27 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
       {carregando ? (
         <div className="py-20 text-center text-slate-400">
           <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-          Carregando...
+          {t('comum.carregando')}
         </div>
       ) : questoes.length === 0 ? (
-        <div className="py-12 text-center text-slate-500 card">Nenhuma questão encontrada.</div>
+        <div className="py-12 text-center text-slate-400 card">{t('exercicios.nenhuma')}</div>
       ) : (
         <div className="space-y-5">
           {questoes.map((q) => {
-            const opcoes = typeof q.opcoes === 'string' ? JSON.parse(q.opcoes) : q.opcoes
+            const opcoesOriginais = typeof q.opcoes === 'string' ? JSON.parse(q.opcoes) : q.opcoes
+            const opcoes = tConteudo('questoes', q.id, 'opcoes', opcoesOriginais)
             return (
               <div key={q.id} className="card p-6 space-y-4">
-                <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
-                  <span className="uppercase">{q.nivel_dificuldade}</span>
-                  <span>{q.disciplina} · {q.topico}</span>
+                <div className="flex items-center justify-between gap-3 text-xs text-slate-400">
+                  <span className="uppercase">
+                    {t(({ FACIL: 'exercicios.facil', MEDIO: 'exercicios.medio', DIFICIL: 'exercicios.dificil' })[q.nivel_dificuldade] || q.nivel_dificuldade)}
+                  </span>
+                  <span>{tDisciplina(q.disciplina)} · {tConteudo('topicos', q.topico_id, 'titulo', q.topico)}</span>
                 </div>
 
-                <p className="text-white font-medium text-sm sm:text-base leading-relaxed">{q.enunciado}</p>
+                <p className="text-white font-medium text-sm sm:text-base leading-relaxed">
+                  {tConteudo('questoes', q.id, 'enunciado', q.enunciado)}
+                </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {opcoes.map((opcao, i) => {
@@ -120,11 +130,13 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
                       : 'bg-rose-500/10 border border-rose-500/40 text-rose-300'
                   }`}>
                     <p className="font-semibold">
-                      {resultados[q.id].correta ? 'Correto.' : 'Incorreto.'}
-                      {!resultados[q.id].correta && <span> Resposta correta: {resultados[q.id].alternativa_correta}.</span>}
+                      {resultados[q.id].correta ? t('exercicios.correto') : t('exercicios.incorreto')}
+                      {!resultados[q.id].correta && <span>{t('exercicios.respostaCorreta', { letra: resultados[q.id].alternativa_correta })}</span>}
                     </p>
                     {resultados[q.id].gabarito_comentado && (
-                      <p className="mt-1 text-xs opacity-90">{resultados[q.id].gabarito_comentado}</p>
+                      <p className="mt-1 text-xs opacity-90">
+                        {tConteudo('questoes', q.id, 'gabarito_comentado', resultados[q.id].gabarito_comentado)}
+                      </p>
                     )}
                   </div>
                 )}

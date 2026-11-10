@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react'
 import api from '../servicos/api'
 import IconeDisciplina from '../components/IconeDisciplina'
 import { corArea, agruparPorArea } from '../utilidades/areas'
+import { usarIdioma } from '../i18n/IdiomaContexto'
 
 export default function Inicio({ aoNavegar }) {
+  const { t, tDisciplina, tArea } = usarIdioma()
   const [disciplinas, setDisciplinas] = useState([])
 
   useEffect(() => {
@@ -19,24 +21,22 @@ export default function Inicio({ aoNavegar }) {
 
       <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto text-center space-y-5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-400">
-            Ensino Médio · ENEM · Vestibulares
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-cyan-400">{t('inicio.tagline')}</p>
 
           <h1 className="text-3xl sm:text-5xl font-bold text-white tracking-tight leading-tight font-display">
-            Estude com resumos, flashcards e exercícios de todas as matérias.
+            {t('inicio.titulo')}
           </h1>
 
           <p className="text-slate-300 text-base sm:text-lg max-w-xl mx-auto">
-            Conteúdo organizado por disciplina e ano escolar, com acompanhamento de desempenho.
+            {t('inicio.subtitulo')}
           </p>
 
           <div className="flex items-center justify-center gap-3 pt-3">
             <button onClick={() => aoNavegar('disciplinas')} className="btn-primary">
-              Explorar disciplinas
+              {t('inicio.explorarDisciplinas')}
             </button>
             <button onClick={() => aoNavegar('exercicios')} className="btn-secondary">
-              Banco de questões
+              {t('inicio.bancoQuestoes')}
             </button>
           </div>
         </div>
@@ -44,19 +44,22 @@ export default function Inicio({ aoNavegar }) {
 
       <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto">
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-white font-display">Disciplinas</h2>
-          <p className="text-sm text-slate-300 mt-1">{disciplinas.length} {disciplinas.length === 1 ? 'matéria do Ensino Médio' : 'matérias do Ensino Médio'}, organizadas por área de conhecimento.</p>
+          <h2 className="text-xl font-bold text-white font-display">{t('navbar.disciplinas')}</h2>
+          <p className="text-sm text-slate-300 mt-1">
+            {disciplinas.length} {t(disciplinas.length === 1 ? 'inicio.materiaSingular' : 'inicio.materiaPlural')}{t('inicio.organizadasPorArea')}
+          </p>
         </div>
 
         <div className="space-y-10">
           {areas.map(({ area, disciplinas: lista }) => {
             const cores = corArea(area)
+            const nomeArea = tArea(area)
             return (
               <section key={area}>
                 <div className="flex items-center gap-2 mb-4">
                   <span className={`w-2.5 h-2.5 rounded-full ${cores.ponto}`}></span>
-                  <h3 className="text-lg font-bold text-white">{area}</h3>
-                  <span className="text-xs text-slate-500">{lista.length} {lista.length === 1 ? 'disciplina' : 'disciplinas'}</span>
+                  <h3 className="text-lg font-bold text-white">{nomeArea}</h3>
+                  <span className="text-xs text-slate-400">{lista.length} {t(lista.length === 1 ? 'comum.disciplina' : 'comum.disciplinas')}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -70,9 +73,11 @@ export default function Inicio({ aoNavegar }) {
                         <span className={`w-11 h-11 rounded-xl flex items-center justify-center ${cores.azulejo}`}>
                           <IconeDisciplina icone={d.icone} tamanho={22} className="text-white" />
                         </span>
-                        <span className="text-xs text-slate-400 bg-slate-800/60 rounded-full px-2 py-0.5">{d.total_topicos} tópicos</span>
+                        <span className="text-xs text-slate-400 bg-slate-800/60 rounded-full px-2 py-0.5">
+                          {d.total_topicos} {t(d.total_topicos === 1 ? 'comum.topico' : 'comum.topicos')}
+                        </span>
                       </div>
-                      <h4 className="text-white font-semibold">{d.nome}</h4>
+                      <h4 className="text-white font-semibold">{tDisciplina(d.nome)}</h4>
                     </button>
                   ))}
                 </div>

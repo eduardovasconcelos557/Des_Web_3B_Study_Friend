@@ -1,15 +1,20 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
 import { dicionarios, NOMES_DISCIPLINAS, ROTULOS_AREAS } from './dicionarios'
+import { conteudosEnCA } from './conteudos-enCA'
+import { conteudosEs419 } from './conteudos-es419'
 
 const CHAVE_IDIOMA = 'idioma_study_friend'
 const IDIOMA_PADRAO = 'pt-BR'
+const CODIGOS_ANTIGOS = { 'en-US': 'en-CA', 'es-MX': 'es-419' }
+const CONTEUDOS = { 'en-CA': conteudosEnCA, 'es-419': conteudosEs419 }
 
 const IdiomaContexto = createContext(null)
 
 function lerIdiomaSalvo() {
   try {
     const salvo = localStorage.getItem(CHAVE_IDIOMA)
-    if (salvo && dicionarios[salvo]) return salvo
+    const idioma = CODIGOS_ANTIGOS[salvo] || salvo
+    if (idioma && dicionarios[idioma]) return idioma
   } catch {
     // localStorage indisponível — usa o padrão
   }
@@ -29,6 +34,10 @@ export function ProvedorIdioma({ children }) {
   }, [idioma])
 
   const dicionario = dicionarios[idioma] || dicionarios[IDIOMA_PADRAO]
+
+  useEffect(() => {
+    document.title = dicionario['document.title']
+  }, [dicionario])
 
   const t = (chave, params) => {
     let texto = dicionario[chave] ?? dicionarios[IDIOMA_PADRAO][chave] ?? chave
@@ -52,11 +61,18 @@ export function ProvedorIdioma({ children }) {
     return (rotulos && rotulos[idioma]) || area
   }
 
+  const tConteudo = (tipo, id, campo, original) => {
+    if (idioma === IDIOMA_PADRAO) return original
+    const catalogo = CONTEUDOS[idioma]?.[tipo]
+    if (tipo === 'topicos' && campo === 'titulo') return catalogo?.[id] || original
+    return catalogo?.[id]?.[campo] ?? original
+  }
+
   const definirIdioma = (novo) => {
     if (dicionarios[novo]) setIdiomaState(novo)
   }
 
-  const valor = { idioma, definirIdioma, t, tDisciplina, tArea }
+  const valor = { idioma, definirIdioma, t, tDisciplina, tArea, tConteudo }
 
   return <IdiomaContexto.Provider value={valor}>{children}</IdiomaContexto.Provider>
 }

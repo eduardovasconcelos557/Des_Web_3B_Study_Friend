@@ -1,13 +1,14 @@
-// Dicionários de idioma do frontend (pt-BR, en-US, es-MX).
+// Dicionários de idioma do frontend (pt-BR, en-CA, es-419).
 // O português (pt-BR) é a fonte da verdade; conteúdo do banco permanece em PT-BR.
 
 export const IDIOMAS = [
-  { codigo: 'pt-BR', bandeira: '🇧🇷', rotulo: 'Português (Brasil)' },
-  { codigo: 'en-US', bandeira: '🇨🇦', rotulo: 'English (United States)' },
-  { codigo: 'es-MX', bandeira: '🇲🇽', rotulo: 'Español (México)' },
+  { codigo: 'pt-BR', rotulo: 'Português (Brasil)' },
+  { codigo: 'en-CA', rotulo: 'English (Canada)' },
+  { codigo: 'es-419', rotulo: 'Español (Latinoamérica)' },
 ]
 
 const ptBR = {
+  'document.title': 'Study Friend — Estudo para o Ensino Médio',
   // Navbar
   'navbar.disciplinas': 'Disciplinas',
   'navbar.exercicios': 'Exercícios',
@@ -17,7 +18,11 @@ const ptBR = {
   'navbar.cadastrar': 'Cadastrar',
   'navbar.sair': 'Sair',
   'navbar.menu': 'Menu',
+  'navbar.navPrincipal': 'Navegação principal',
+  'navbar.navMovel': 'Navegação móvel',
+  'navbar.inicio': 'Início',
   'idioma.selecionar': 'Idioma',
+  'idioma.opcoes': 'Escolha o idioma',
 
   // Comum
   'comum.carregando': 'Carregando...',
@@ -26,6 +31,7 @@ const ptBR = {
   'comum.topicos': 'tópicos',
   'comum.disciplina': 'disciplina',
   'comum.disciplinas': 'disciplinas',
+  'comum.voltarTopicos': 'Voltar para tópicos',
 
   // Início
   'inicio.tagline': 'Ensino Médio · ENEM · Vestibulares',
@@ -39,6 +45,7 @@ const ptBR = {
 
   // Tópicos
   'topicos.titulo': 'Tópicos',
+  'topicos.voltar': 'Voltar para disciplinas',
   'topicos.ano1': '1º Ano',
   'topicos.ano2': '2º Ano',
   'topicos.ano3': '3º Ano',
@@ -58,6 +65,8 @@ const ptBR = {
   'flashcards.contador': '{atual} de {total}',
   'flashcards.pergunta': 'Pergunta',
   'flashcards.resposta': 'Resposta',
+  'flashcards.mostrarResposta': 'Mostrar resposta do flashcard',
+  'flashcards.mostrarPergunta': 'Mostrar pergunta do flashcard',
   'flashcards.cliqueVer': 'Clique para ver a resposta',
   'flashcards.cliqueVoltar': 'Clique para voltar',
   'flashcards.anterior': 'Anterior',
@@ -103,6 +112,7 @@ const ptBR = {
   'login.semConta': 'Não tem conta?',
   'login.cadastreSe': 'Cadastre-se',
   'login.erro': 'Falha ao entrar.',
+  'login.erroCredenciais': 'E-mail ou senha inválidos.',
 
   // Cadastro
   'registrar.titulo': 'Criar conta',
@@ -113,6 +123,7 @@ const ptBR = {
   'registrar.criar': 'Criar conta',
   'registrar.jaTemConta': 'Já tem conta?',
   'registrar.erro': 'Falha ao cadastrar.',
+  'registrar.emailExiste': 'Este e-mail já está cadastrado.',
 
   // Admin CMS
   'admin.restritoTitulo': 'Acesso restrito',
@@ -129,6 +140,7 @@ const ptBR = {
   'admin.nenhum': 'Nenhum registro encontrado.',
   'admin.acoes': 'Ações',
   'admin.excluir': 'Excluir',
+  'admin.fecharMensagem': 'Fechar mensagem',
 
   // Colunas do CMS
   'admin.col.id': 'ID',
@@ -157,7 +169,8 @@ const ptBR = {
   'auth.falhaRegistrar': 'Falha ao cadastrar.',
 }
 
-const enUS = {
+const enCA = {
+  'document.title': 'Study Friend — High School Study Platform',
   // Navbar
   'navbar.disciplinas': 'Subjects',
   'navbar.exercicios': 'Exercises',
@@ -167,7 +180,11 @@ const enUS = {
   'navbar.cadastrar': 'Sign up',
   'navbar.sair': 'Log out',
   'navbar.menu': 'Menu',
+  'navbar.navPrincipal': 'Main navigation',
+  'navbar.navMovel': 'Mobile navigation',
+  'navbar.inicio': 'Home',
   'idioma.selecionar': 'Language',
+  'idioma.opcoes': 'Choose a language',
 
   // Comum
   'comum.carregando': 'Loading...',
@@ -176,22 +193,24 @@ const enUS = {
   'comum.topicos': 'topics',
   'comum.disciplina': 'subject',
   'comum.disciplinas': 'subjects',
+  'comum.voltarTopicos': 'Back to topics',
 
   // Início
-  'inicio.tagline': 'High School · ENEM · College Entrance Exams',
+  'inicio.tagline': 'High School · ENEM · University Entrance Exams',
   'inicio.titulo': 'Study with summaries, flashcards and exercises for every subject.',
-  'inicio.subtitulo': 'Content organized by subject and school year, with performance tracking.',
+  'inicio.subtitulo': 'Content organised by subject and grade, with performance tracking.',
   'inicio.explorarDisciplinas': 'Explore subjects',
   'inicio.bancoQuestoes': 'Question bank',
   'inicio.materiaSingular': 'high school subject',
   'inicio.materiaPlural': 'high school subjects',
-  'inicio.organizadasPorArea': ', organized by knowledge area.',
+  'inicio.organizadasPorArea': ', organised by knowledge area.',
 
   // Tópicos
   'topicos.titulo': 'Topics',
-  'topicos.ano1': '1st Year',
-  'topicos.ano2': '2nd Year',
-  'topicos.ano3': '3rd Year',
+  'topicos.voltar': 'Back to subjects',
+  'topicos.ano1': 'Grade 10',
+  'topicos.ano2': 'Grade 11',
+  'topicos.ano3': 'Grade 12',
   'topicos.enem': 'ENEM',
   'topicos.nenhum': 'No topics found for this filter.',
   'topicos.resumos': 'Summaries',
@@ -208,6 +227,8 @@ const enUS = {
   'flashcards.contador': '{atual} of {total}',
   'flashcards.pergunta': 'Question',
   'flashcards.resposta': 'Answer',
+  'flashcards.mostrarResposta': 'Show flashcard answer',
+  'flashcards.mostrarPergunta': 'Show flashcard question',
   'flashcards.cliqueVer': 'Click to see the answer',
   'flashcards.cliqueVoltar': 'Click to go back',
   'flashcards.anterior': 'Previous',
@@ -253,6 +274,7 @@ const enUS = {
   'login.semConta': "Don't have an account?",
   'login.cadastreSe': 'Sign up',
   'login.erro': 'Failed to log in.',
+  'login.erroCredenciais': 'The email or password is incorrect.',
 
   // Cadastro
   'registrar.titulo': 'Create account',
@@ -263,6 +285,7 @@ const enUS = {
   'registrar.criar': 'Create account',
   'registrar.jaTemConta': 'Already have an account?',
   'registrar.erro': 'Failed to sign up.',
+  'registrar.emailExiste': 'This email is already registered.',
 
   // Admin CMS
   'admin.restritoTitulo': 'Restricted access',
@@ -279,6 +302,7 @@ const enUS = {
   'admin.nenhum': 'No records found.',
   'admin.acoes': 'Actions',
   'admin.excluir': 'Delete',
+  'admin.fecharMensagem': 'Close message',
 
   // Colunas do CMS
   'admin.col.id': 'ID',
@@ -307,7 +331,8 @@ const enUS = {
   'auth.falhaRegistrar': 'Failed to sign up.',
 }
 
-const esMX = {
+const es419 = {
+  'document.title': 'Study Friend — Plataforma de estudio para bachillerato',
   // Navbar
   'navbar.disciplinas': 'Asignaturas',
   'navbar.exercicios': 'Ejercicios',
@@ -317,7 +342,11 @@ const esMX = {
   'navbar.cadastrar': 'Registrarse',
   'navbar.sair': 'Salir',
   'navbar.menu': 'Menú',
+  'navbar.navPrincipal': 'Navegación principal',
+  'navbar.navMovel': 'Navegación móvil',
+  'navbar.inicio': 'Inicio',
   'idioma.selecionar': 'Idioma',
+  'idioma.opcoes': 'Elige un idioma',
 
   // Comum
   'comum.carregando': 'Cargando...',
@@ -326,10 +355,11 @@ const esMX = {
   'comum.topicos': 'temas',
   'comum.disciplina': 'asignatura',
   'comum.disciplinas': 'asignaturas',
+  'comum.voltarTopicos': 'Volver a los temas',
 
   // Início
   'inicio.tagline': 'Educación Media · ENEM · Exámenes de admisión',
-  'inicio.titulo': 'Estudia con resúmenes, flashcards y ejercicios de todas las materias.',
+  'inicio.titulo': 'Estudia con resúmenes, tarjetas de estudio y ejercicios de todas las asignaturas.',
   'inicio.subtitulo': 'Contenido organizado por asignatura y grado escolar, con seguimiento de desempeño.',
   'inicio.explorarDisciplinas': 'Explorar asignaturas',
   'inicio.bancoQuestoes': 'Banco de preguntas',
@@ -339,13 +369,14 @@ const esMX = {
 
   // Tópicos
   'topicos.titulo': 'Temas',
+  'topicos.voltar': 'Volver a las asignaturas',
   'topicos.ano1': '1º Año',
   'topicos.ano2': '2º Año',
   'topicos.ano3': '3º Año',
   'topicos.enem': 'ENEM',
   'topicos.nenhum': 'No se encontraron temas para este filtro.',
   'topicos.resumos': 'Resúmenes',
-  'topicos.flashcards': 'Flashcards',
+  'topicos.flashcards': 'Tarjetas de estudio',
   'topicos.questoes': 'Preguntas',
 
   // Resumos
@@ -354,10 +385,12 @@ const esMX = {
   'resumos.mapaMental': 'Mapa mental (PDF)',
 
   // Flashcards
-  'flashcards.nenhum': 'No hay flashcards disponibles para este tema.',
+  'flashcards.nenhum': 'No hay tarjetas de estudio disponibles para este tema.',
   'flashcards.contador': '{atual} de {total}',
   'flashcards.pergunta': 'Pregunta',
   'flashcards.resposta': 'Respuesta',
+  'flashcards.mostrarResposta': 'Mostrar la respuesta de la tarjeta',
+  'flashcards.mostrarPergunta': 'Mostrar la pregunta de la tarjeta',
   'flashcards.cliqueVer': 'Haz clic para ver la respuesta',
   'flashcards.cliqueVoltar': 'Haz clic para volver',
   'flashcards.anterior': 'Anterior',
@@ -403,16 +436,18 @@ const esMX = {
   'login.semConta': '¿No tienes cuenta?',
   'login.cadastreSe': 'Regístrate',
   'login.erro': 'No se pudo iniciar sesión.',
+  'login.erroCredenciais': 'El correo o la contraseña son incorrectos.',
 
   // Cadastro
   'registrar.titulo': 'Crear cuenta',
-  'registrar.subtitulo': 'Empieza a estudar gratis.',
+  'registrar.subtitulo': 'Empieza a estudiar gratis.',
   'registrar.nome': 'Nombre completo',
   'registrar.placeholderNome': 'Tu nombre',
   'registrar.criando': 'Creando cuenta...',
   'registrar.criar': 'Crear cuenta',
   'registrar.jaTemConta': '¿Ya tienes cuenta?',
   'registrar.erro': 'No se pudo crear la cuenta.',
+  'registrar.emailExiste': 'Este correo ya está registrado.',
 
   // Admin CMS
   'admin.restritoTitulo': 'Acceso restringido',
@@ -422,13 +457,14 @@ const esMX = {
   'admin.aba.disciplinas': 'Asignaturas',
   'admin.aba.topicos': 'Temas',
   'admin.aba.resumos': 'Resúmenes',
-  'admin.aba.flashcards': 'Flashcards',
+  'admin.aba.flashcards': 'Tarjetas de estudio',
   'admin.aba.questoes': 'Preguntas',
   'admin.confirmExcluir': '¿Seguro que deseas eliminar esto?',
   'admin.excluido': 'Elemento eliminado correctamente.',
   'admin.nenhum': 'No se encontraron registros.',
   'admin.acoes': 'Acciones',
   'admin.excluir': 'Eliminar',
+  'admin.fecharMensagem': 'Cerrar mensaje',
 
   // Colunas do CMS
   'admin.col.id': 'ID',
@@ -459,35 +495,35 @@ const esMX = {
 
 export const dicionarios = {
   'pt-BR': ptBR,
-  'en-US': enUS,
-  'es-MX': esMX,
+  'en-CA': enCA,
+  'es-419': es419,
 }
 
 // Nomes de disciplinas vindos da API → tradução por idioma (fallback: valor original)
 export const NOMES_DISCIPLINAS = {
-  'Artes': { 'en-US': 'Arts', 'es-MX': 'Artes' },
-  'Biologia': { 'en-US': 'Biology', 'es-MX': 'Biología' },
-  'Educação Física': { 'en-US': 'Physical Education', 'es-MX': 'Educación Física' },
-  'Espanhol': { 'en-US': 'Spanish', 'es-MX': 'Español' },
-  'Filosofia': { 'en-US': 'Philosophy', 'es-MX': 'Filosofía' },
-  'Física': { 'en-US': 'Physics', 'es-MX': 'Física' },
-  'Geografia': { 'en-US': 'Geography', 'es-MX': 'Geografía' },
-  'História': { 'en-US': 'History', 'es-MX': 'Historia' },
-  'Inglês': { 'en-US': 'English', 'es-MX': 'Inglés' },
+  'Artes': { 'en-CA': 'Arts', 'es-419': 'Artes' },
+  'Biologia': { 'en-CA': 'Biology', 'es-419': 'Biología' },
+  'Educação Física': { 'en-CA': 'Physical Education', 'es-419': 'Educación Física' },
+  'Espanhol': { 'en-CA': 'Spanish', 'es-419': 'Español' },
+  'Filosofia': { 'en-CA': 'Philosophy', 'es-419': 'Filosofía' },
+  'Física': { 'en-CA': 'Physics', 'es-419': 'Física' },
+  'Geografia': { 'en-CA': 'Geography', 'es-419': 'Geografía' },
+  'História': { 'en-CA': 'History', 'es-419': 'Historia' },
+  'Inglês': { 'en-CA': 'English', 'es-419': 'Inglés' },
   'Língua Portuguesa e Literatura': {
-    'en-US': 'Portuguese Language and Literature',
-    'es-MX': 'Lengua Portuguesa y Literatura',
+    'en-CA': 'Portuguese Language and Literature',
+    'es-419': 'Lengua Portuguesa y Literatura',
   },
-  'Matemática': { 'en-US': 'Mathematics', 'es-MX': 'Matemática' },
-  'Química': { 'en-US': 'Chemistry', 'es-MX': 'Química' },
-  'Sociologia': { 'en-US': 'Sociology', 'es-MX': 'Sociología' },
+  'Matemática': { 'en-CA': 'Mathematics', 'es-419': 'Matemática' },
+  'Química': { 'en-CA': 'Chemistry', 'es-419': 'Química' },
+  'Sociologia': { 'en-CA': 'Sociology', 'es-419': 'Sociología' },
 }
 
 // Áreas do conhecimento → rótulo de exibição (chaves da API permanecem intactas)
 export const ROTULOS_AREAS = {
-  Exatas: { 'en-US': 'Exact Sciences', 'es-MX': 'Ciencias Exactas' },
-  Humanas: { 'en-US': 'Humanities', 'es-MX': 'Humanidades' },
-  'Biológicas': { 'en-US': 'Biological Sciences', 'es-MX': 'Ciencias Biológicas' },
-  Linguagens: { 'en-US': 'Languages', 'es-MX': 'Lenguajes' },
-  Outras: { 'en-US': 'Others', 'es-MX': 'Otras' },
+  Exatas: { 'en-CA': 'Exact Sciences', 'es-419': 'Ciencias Exactas' },
+  Humanas: { 'en-CA': 'Humanities', 'es-419': 'Humanidades' },
+  'Biológicas': { 'en-CA': 'Biological Sciences', 'es-419': 'Ciencias Biológicas' },
+  Linguagens: { 'en-CA': 'Languages', 'es-419': 'Lenguajes' },
+  Outras: { 'en-CA': 'Others', 'es-419': 'Otras' },
 }
