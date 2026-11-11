@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import api from '../servicos/api'
 import { usarIdioma } from '../i18n/IdiomaContexto'
+import { EstadoVazio } from '../components/Ilustracao'
 
-export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNome, aoNavegar }) {
+export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNome, origem, aoNavegar }) {
   const { t, tDisciplina, tConteudo } = usarIdioma()
   const [flashcards, setFlashcards] = useState([])
   const [indiceAtual, setIndiceAtual] = useState(0)
@@ -24,7 +25,7 @@ export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNom
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto">
-      <button onClick={() => aoNavegar('topicos', { disciplinaId: null, disciplinaNome })} className="text-sm text-slate-400 hover:text-white transition mb-6 flex items-center gap-1">
+      <button onClick={() => (origem?.disciplinaId ? aoNavegar('topicos', origem) : aoNavegar('disciplinas'))} className="btn-voltar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
@@ -32,21 +33,21 @@ export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNom
       </button>
 
       <div className="mb-8 text-center">
-        <p className="text-xs text-slate-400 mb-1">{tDisciplina(disciplinaNome)}</p>
-        <h1 className="text-2xl font-bold text-white">{tConteudo('topicos', topicoId, 'titulo', topicoTitulo)}</h1>
+        <p className="text-xs text-suave mb-1">{tDisciplina(disciplinaNome)}</p>
+        <h1 className="text-2xl font-bold text-tinta">{tConteudo('topicos', topicoId, 'titulo', topicoTitulo)}</h1>
       </div>
 
       {carregando ? (
-        <div className="py-20 text-center text-slate-400">
-          <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        <div className="py-20 text-center text-suave">
+          <div className="carregando"></div>
           {t('comum.carregando')}
         </div>
       ) : total === 0 ? (
-        <div className="py-12 text-center text-slate-400 card">{t('flashcards.nenhum')}</div>
+        <EstadoVazio><p>{t('flashcards.nenhum')}</p></EstadoVazio>
       ) : (
         <div className="space-y-6">
           <div className="text-center" role="status" aria-live="polite">
-            <span className="text-sm text-slate-400">{t('flashcards.contador', { atual: indiceAtual + 1, total })}</span>
+            <span className="text-sm text-suave">{t('flashcards.contador', { atual: indiceAtual + 1, total })}</span>
           </div>
 
           <button
@@ -65,8 +66,8 @@ export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNom
                 style={{ backfaceVisibility: 'hidden' }}
                 aria-hidden={virado}
               >
-                <p className="text-xs uppercase tracking-widest text-slate-400 mb-4">{t('flashcards.pergunta')}</p>
-                <p className="text-white text-lg font-semibold leading-relaxed">{tConteudo('flashcards', card.id, 'frente', card.frente)}</p>
+                <p className="text-xs uppercase tracking-widest text-suave mb-4">{t('flashcards.pergunta')}</p>
+                <p className="text-tinta text-lg font-semibold leading-relaxed">{tConteudo('flashcards', card.id, 'frente', card.frente)}</p>
               </div>
 
               <div
@@ -74,8 +75,8 @@ export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNom
                 style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                 aria-hidden={!virado}
               >
-                <p className="text-xs uppercase tracking-widest text-slate-400 mb-4">{t('flashcards.resposta')}</p>
-                <p className="text-emerald-300 text-base font-medium leading-relaxed">{tConteudo('flashcards', card.id, 'verso', card.verso)}</p>
+                <p className="text-xs uppercase tracking-widest text-suave mb-4">{t('flashcards.resposta')}</p>
+                <p className="text-marca-texto text-base font-medium leading-relaxed">{tConteudo('flashcards', card.id, 'verso', card.verso)}</p>
               </div>
             </div>
           </button>

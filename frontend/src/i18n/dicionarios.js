@@ -23,6 +23,8 @@ const ptBR = {
   'navbar.inicio': 'Início',
   'idioma.selecionar': 'Idioma',
   'idioma.opcoes': 'Escolha o idioma',
+  'tema.claro': 'Usar tema claro',
+  'tema.escuro': 'Tema escuro',
 
   // Comum
   'comum.carregando': 'Carregando...',
@@ -185,6 +187,8 @@ const enCA = {
   'navbar.inicio': 'Home',
   'idioma.selecionar': 'Language',
   'idioma.opcoes': 'Choose a language',
+  'tema.claro': 'Use light theme',
+  'tema.escuro': 'Dark theme',
 
   // Comum
   'comum.carregando': 'Loading...',
@@ -347,6 +351,8 @@ const es419 = {
   'navbar.inicio': 'Inicio',
   'idioma.selecionar': 'Idioma',
   'idioma.opcoes': 'Elige un idioma',
+  'tema.claro': 'Usar tema claro',
+  'tema.escuro': 'Tema oscuro',
 
   // Comum
   'comum.carregando': 'Cargando...',

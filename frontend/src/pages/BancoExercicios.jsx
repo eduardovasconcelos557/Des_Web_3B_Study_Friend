@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react'
 import api from '../servicos/api'
 import { usarAutenticacao } from '../contextos/AutenticacaoContexto'
 import { usarIdioma } from '../i18n/IdiomaContexto'
+import { EstadoVazio } from '../components/Ilustracao'
 
-export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaNomeFiltro }) {
+export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaNomeFiltro, origem }) {
   const { autenticado } = usarAutenticacao()
   const { t, tDisciplina, tConteudo } = usarIdioma()
   const [questoes, setQuestoes] = useState([])
@@ -39,25 +40,34 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
   const corAlternativa = (qId, letra) => {
     if (!resultados[qId]) {
       return respostasEnviadas[qId] === letra
-        ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300'
-        : 'bg-slate-950 border-slate-700 text-slate-300 hover:border-slate-500'
+        ? 'bg-marca/10 border-marca text-tinta'
+        : 'bg-superficie border-borda text-tinta hover:border-marca/50 hover:bg-marca/5'
     }
     const correta = resultados[qId].alternativa_correta === letra
     const selecionada = respostasEnviadas[qId] === letra
-    if (correta) return 'bg-emerald-500/15 border-emerald-500 text-emerald-300'
-    if (selecionada && !correta) return 'bg-rose-500/15 border-rose-500 text-rose-300'
-    return 'bg-slate-950 border-slate-800 text-slate-400'
+    if (correta) return 'bg-sucesso/10 border-sucesso text-tinta'
+    if (selecionada && !correta) return 'bg-erro/10 border-erro text-tinta'
+    return 'bg-elevada/60 border-borda text-suave'
   }
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+      {topicoIdFiltro && origem?.disciplinaId && (
+        <button onClick={() => aoNavegar('topicos', origem)} className="btn-voltar">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          {t('comum.voltarTopicos')}
+        </button>
+      )}
+
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">
+        <h1 className="text-2xl font-bold text-tinta mb-1">
           {topicoIdFiltro
             ? t('exercicios.tituloTopico', { nome: tDisciplina(disciplinaNomeFiltro || t('exercicios.topicoFallback')) })
             : t('exercicios.tituloBanco')}
         </h1>
-        <p className="text-sm text-slate-400">
+        <p className="text-sm text-suave">
           {autenticado ? t('exercicios.subAutenticado') : t('exercicios.subDesautenticado')}
         </p>
       </div>
@@ -69,11 +79,7 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
               key={n}
               onClick={() => setNivelFiltro(n)}
               aria-pressed={nivelFiltro === n}
-              className={`text-sm px-4 py-1.5 rounded-lg border transition ${
-                nivelFiltro === n
-                  ? 'bg-cyan-500 border-cyan-500 text-slate-950 font-semibold'
-                  : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-white'
-              }`}
+              className="chip"
             >
               {n === '' ? t('comum.todos') : n === 'FACIL' ? t('exercicios.facil') : n === 'MEDIO' ? t('exercicios.medio') : t('exercicios.dificil')}
             </button>
@@ -82,12 +88,12 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
       )}
 
       {carregando ? (
-        <div className="py-20 text-center text-slate-400">
-          <div className="w-6 h-6 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        <div className="py-20 text-center text-suave">
+          <div className="carregando"></div>
           {t('comum.carregando')}
         </div>
       ) : questoes.length === 0 ? (
-        <div className="py-12 text-center text-slate-400 card">{t('exercicios.nenhuma')}</div>
+        <EstadoVazio><p>{t('exercicios.nenhuma')}</p></EstadoVazio>
       ) : (
         <div className="space-y-5">
           {questoes.map((q) => {
@@ -95,14 +101,14 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
             const opcoes = tConteudo('questoes', q.id, 'opcoes', opcoesOriginais)
             return (
               <div key={q.id} className="card p-6 space-y-4">
-                <div className="flex items-center justify-between gap-3 text-xs text-slate-400">
-                  <span className="uppercase">
+                <div className="flex items-center justify-between gap-3 text-xs text-suave">
+                  <span className="selo uppercase">
                     {t(({ FACIL: 'exercicios.facil', MEDIO: 'exercicios.medio', DIFICIL: 'exercicios.dificil' })[q.nivel_dificuldade] || q.nivel_dificuldade)}
                   </span>
                   <span>{tDisciplina(q.disciplina)} · {tConteudo('topicos', q.topico_id, 'titulo', q.topico)}</span>
                 </div>
 
-                <p className="text-white font-medium text-sm sm:text-base leading-relaxed">
+                <p className="text-tinta font-medium text-sm sm:text-base leading-relaxed">
                   {tConteudo('questoes', q.id, 'enunciado', q.enunciado)}
                 </p>
 
@@ -115,7 +121,7 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
                         key={letra}
                         onClick={() => enviarResposta(q.id, letra)}
                         disabled={!!enviada}
-                        className={`text-left p-3 rounded-lg border text-sm transition ${corAlternativa(q.id, letra)} ${enviada ? 'cursor-default' : 'cursor-pointer'}`}
+                        className={`text-left p-3.5 rounded-2xl border text-sm transition ${corAlternativa(q.id, letra)} ${enviada ? 'cursor-default' : 'cursor-pointer'}`}
                       >
                         <span className="font-semibold mr-2">{letra})</span> {opcao}
                       </button>
@@ -124,10 +130,10 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
                 </div>
 
                 {resultados[q.id] && (
-                  <div className={`p-4 rounded-lg text-sm leading-relaxed ${
+                  <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
                     resultados[q.id].correta
-                      ? 'bg-emerald-500/10 border border-emerald-500/40 text-emerald-300'
-                      : 'bg-rose-500/10 border border-rose-500/40 text-rose-300'
+                      ? 'bg-sucesso/10 border border-sucesso/40 text-tinta [&>p:first-child]:text-sucesso'
+                      : 'bg-erro/10 border border-erro/40 text-tinta [&>p:first-child]:text-erro'
                   }`}>
                     <p className="font-semibold">
                       {resultados[q.id].correta ? t('exercicios.correto') : t('exercicios.incorreto')}

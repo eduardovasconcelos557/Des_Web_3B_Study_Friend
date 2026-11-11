@@ -1,6 +1,6 @@
 # 🎓 Study Friend — Plataforma Estudantil Integrada
 
-> **Projeto Acadêmico Full Stack:** Plataforma educacional construída em **React 18 (Vite + Tailwind CSS)** com interface **dark, limpa e minimalista** e API RESTful em **Python 3 (FastAPI + Uvicorn)** com banco de dados **SQLite** e autenticação **JWT**.
+> **Projeto Acadêmico Full Stack:** Plataforma educacional construída em **React 18 (Vite + Tailwind CSS)** com interface **limpa e moderna (temas claro e escuro)** e API RESTful em **Python 3 (FastAPI + Uvicorn)** com banco de dados **SQLite** e autenticação **JWT**.
 
 ---
 
@@ -14,7 +14,12 @@ A aplicação conta com autenticação JWT, dashboard de progresso do aluno, pai
 
 ## 🎨 Destaques da Interface
 
-- 🌑 **Tema escuro minimalista:** Tons slate com acento ciano, superfícies planas e hierarquia tipográfica limpa.
+- 🎨 **Cores da marca:** Azul-petróleo (#0094AD), roxo (#8A62C0) e amarelo das estrelinhas do logo, aplicados como tokens de tema.
+- 🌗 **Tema claro e escuro:** Claro por padrão, com botão para alternar (a escolha fica salva no navegador).
+- 🧭 **Menu flutuante no topo:** Pílula de abas com ícone + rótulo, vidro leve e um destaque que desliza até a aba ativa; no celular, um botão circular reúne conta, tema e idioma.
+- ✏️ **Ilustrações próprias:** Desenhos simples em SVG (livros, capelo, lápis, estrelinhas) na página inicial e nos estados vazios.
+- 🏳️ **Bandeiras detalhadas:** Seletor de idioma com bandeiras em SVG fiel (pacote `flag-icons`, MIT).
+- ♿ **Acessível:** Respeita `prefers-reduced-motion` e `prefers-reduced-transparency` (o vidro vira superfície opaca).
 - 🔤 **Tipografia Google Fonts:** *Plus Jakarta Sans* para toda a interface.
 - 🃏 **Flashcards com Flip 3D:** Animação CSS `rotateY` com `preserve-3d` e `backface-visibility`.
 - 📊 **Dashboard de Progresso:** Barras de desempenho por disciplina com taxa de acerto.
@@ -32,7 +37,7 @@ A aplicação conta com autenticação JWT, dashboard de progresso do aluno, pai
 - **Vite** — Build tool com HMR instantâneo e proxy de API.
 - **Tailwind CSS v3** — Utilitários CSS com abordagem *Mobile-First*.
 - **Axios** — Cliente HTTP com interceptor automático para token JWT.
-- **Tema escuro minimalista** — Superfícies planas em tons slate com acento ciano.
+- **Temas claro e escuro** — Tokens de cor da marca (azul-petróleo e roxo) via variáveis CSS.
 
 ### **Backend (Python 3 + FastAPI + SQLite)**
 - **Python 3.13** — Linguagem principal do backend.

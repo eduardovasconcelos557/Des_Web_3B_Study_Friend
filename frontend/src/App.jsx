@@ -14,6 +14,7 @@ import Login from './pages/Login'
 import Registrar from './pages/Registrar'
 import AdminCMS from './pages/AdminCMS'
 import { ProvedorIdioma } from './i18n/IdiomaContexto'
+import { ProvedorTema } from './contextos/TemaContexto'
 
 function ConteudoInterno() {
   const [pagina, setPagina] = useState('inicio')
@@ -53,6 +54,7 @@ function ConteudoInterno() {
             topicoId={parametros.topicoId}
             topicoTitulo={parametros.topicoTitulo}
             disciplinaNome={parametros.disciplinaNome}
+            origem={parametros.origem}
             aoNavegar={navegar}
           />
         )
@@ -62,6 +64,7 @@ function ConteudoInterno() {
             topicoId={parametros.topicoId}
             topicoTitulo={parametros.topicoTitulo}
             disciplinaNome={parametros.disciplinaNome}
+            origem={parametros.origem}
             aoNavegar={navegar}
           />
         )
@@ -71,6 +74,7 @@ function ConteudoInterno() {
             aoNavegar={navegar}
             topicoIdFiltro={parametros.topicoId}
             disciplinaNomeFiltro={parametros.disciplinaNome}
+            origem={parametros.origem}
           />
         )
       case 'dashboard':
@@ -87,9 +91,9 @@ function ConteudoInterno() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col text-tinta">
       <Navbar pagina={pagina} aoNavegar={navegar} />
-      <main className="flex-1 pb-24 pt-24 sm:pt-32 md:pb-0">
+      <main className="flex-1 pb-16 pt-[calc(env(safe-area-inset-top)+6.5rem)] lg:pt-32">
         {renderPagina()}
       </main>
       <Toast
@@ -104,10 +108,12 @@ function ConteudoInterno() {
 
 export default function App() {
   return (
-    <ProvedorIdioma>
-      <ProvedorAutenticacao>
-        <ConteudoInterno />
-      </ProvedorAutenticacao>
-    </ProvedorIdioma>
+    <ProvedorTema>
+      <ProvedorIdioma>
+        <ProvedorAutenticacao>
+          <ConteudoInterno />
+        </ProvedorAutenticacao>
+      </ProvedorIdioma>
+    </ProvedorTema>
   )
 }

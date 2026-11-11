@@ -1,11 +1,12 @@
+// Cada área do conhecimento tem uma cor (variáveis em index.css, mudam com o tema)
 export const COR_AREA = {
-  Exatas: { ponto: 'bg-sky-500', azulejo: 'bg-sky-500/15' },
-  Humanas: { ponto: 'bg-amber-500', azulejo: 'bg-amber-500/15' },
-  'Biológicas': { ponto: 'bg-emerald-500', azulejo: 'bg-emerald-500/15' },
-  Linguagens: { ponto: 'bg-violet-500', azulejo: 'bg-violet-500/15' },
+  Exatas: { ponto: 'bg-area-exatas', azulejo: 'bg-area-exatas/15 text-area-exatas', texto: 'text-area-exatas' },
+  Humanas: { ponto: 'bg-area-humanas', azulejo: 'bg-area-humanas/15 text-area-humanas', texto: 'text-area-humanas' },
+  'Biológicas': { ponto: 'bg-area-biologicas', azulejo: 'bg-area-biologicas/15 text-area-biologicas', texto: 'text-area-biologicas' },
+  Linguagens: { ponto: 'bg-area-linguagens', azulejo: 'bg-area-linguagens/15 text-area-linguagens', texto: 'text-area-linguagens' },
 }
 
-const COR_PADRAO = { ponto: 'bg-slate-500', azulejo: 'bg-slate-500/15' }
+const COR_PADRAO = { ponto: 'bg-suave', azulejo: 'bg-suave/15 text-suave', texto: 'text-suave' }
 
 export function corArea(area) {
   return COR_AREA[area] || COR_PADRAO

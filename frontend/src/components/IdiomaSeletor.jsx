@@ -1,45 +1,65 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { BR, CA, MX } from 'country-flag-icons/react/3x2'
+import React from 'react'
+// Bandeiras em SVG detalhado (pacote flag-icons, licença MIT)
+import bandeiraBR from 'flag-icons/flags/4x3/br.svg'
+import bandeiraCA from 'flag-icons/flags/4x3/ca.svg'
+import bandeiraMX from 'flag-icons/flags/4x3/mx.svg'
 import { IDIOMAS } from '../i18n/dicionarios'
 import { usarIdioma } from '../i18n/IdiomaContexto'
+import usarPopover from './usarPopover'
 
-const COMPONENTES_BANDEIRA = { 'pt-BR': BR, 'en-CA': CA, 'es-419': MX }
+const ARQUIVOS_BANDEIRA = { 'pt-BR': bandeiraBR, 'en-CA': bandeiraCA, 'es-419': bandeiraMX }
 
-function Bandeira({ codigo }) {
-  const ComponenteBandeira = COMPONENTES_BANDEIRA[codigo] || BR
-  return <ComponenteBandeira aria-hidden="true" focusable="false" className="h-4 w-6 rounded-[3px] shadow-sm" />
+export function Bandeira({ codigo, circular = false, tamanho = 22 }) {
+  const arquivo = ARQUIVOS_BANDEIRA[codigo] || bandeiraBR
+  const largura = circular ? tamanho : Math.round(tamanho * (4 / 3))
+  return (
+    <span
+      aria-hidden="true"
+      className={`bandeira ${circular ? 'bandeira--circular' : ''}`}
+      style={{ width: largura, height: tamanho }}
+    >
+      <img src={arquivo} alt="" width={largura} height={tamanho} decoding="async" draggable="false" />
+    </span>
+  )
 }
 
-export default function IdiomaSeletor({ compacto = false, abrirAcima = false }) {
+// Lista de idiomas reutilizada no seletor da barra e no menu do celular
+export function ListaIdiomas({ aoEscolher }) {
   const { idioma, definirIdioma, t } = usarIdioma()
-  const [aberto, setAberto] = useState(false)
-  const seletorRef = useRef(null)
-  const botaoRef = useRef(null)
+  return (
+    <div role="group" aria-label={t('idioma.opcoes')} className="flex flex-col gap-0.5">
+      {IDIOMAS.map((opcao) => (
+        <button
+          key={opcao.codigo}
+          type="button"
+          onClick={() => {
+            definirIdioma(opcao.codigo)
+            aoEscolher?.()
+          }}
+          aria-pressed={idioma === opcao.codigo}
+          className="opcao-menu"
+        >
+          <Bandeira codigo={opcao.codigo} tamanho={18} />
+          <span className="flex-1">{opcao.rotulo}</span>
+          {idioma === opcao.codigo && (
+            <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4 text-marca-texto" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m5 12.5 4.5 4.5L19 7.5" />
+            </svg>
+          )}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// Botão circular de vidro com a bandeira do idioma atual
+export default function IdiomaSeletor({ className = '' }) {
+  const { idioma, t } = usarIdioma()
+  const { aberto, setAberto, containerRef, botaoRef, painelRef } = usarPopover()
   const idiomaAtual = IDIOMAS.find((opcao) => opcao.codigo === idioma) || IDIOMAS[0]
 
-  useEffect(() => {
-    if (!aberto) return undefined
-
-    const fecharFora = (evento) => {
-      if (!seletorRef.current?.contains(evento.target)) setAberto(false)
-    }
-    const fecharEscape = (evento) => {
-      if (evento.key === 'Escape') {
-        setAberto(false)
-        botaoRef.current?.focus()
-      }
-    }
-
-    document.addEventListener('pointerdown', fecharFora)
-    document.addEventListener('keydown', fecharEscape)
-    return () => {
-      document.removeEventListener('pointerdown', fecharFora)
-      document.removeEventListener('keydown', fecharEscape)
-    }
-  }, [aberto])
-
   return (
-    <div ref={seletorRef} className="relative w-fit">
+    <div ref={containerRef} className={`relative ${className}`}>
       <button
         ref={botaoRef}
         type="button"
@@ -48,39 +68,17 @@ export default function IdiomaSeletor({ compacto = false, abrirAcima = false }) 
         aria-expanded={aberto}
         aria-controls="opcoes-idioma"
         title={`${t('idioma.selecionar')}: ${idiomaAtual.rotulo}`}
-        className={`inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-sm text-slate-100 backdrop-blur-xl transition hover:border-white/30 hover:bg-white/10 hover:text-white ${compacto ? 'min-w-11 justify-center px-2' : ''}`}
+        className="vidro botao-circular"
       >
-        <Bandeira codigo={idioma} />
-        <span className={compacto ? 'sr-only' : 'hidden lg:inline'}>{idiomaAtual.rotulo}</span>
-        {!compacto && <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4" fill="currentColor">
-          <path d="m5.5 7.5 4.5 4 4.5-4" />
-        </svg>}
+        <Bandeira codigo={idioma} circular tamanho={30} />
       </button>
 
       {aberto && (
-        <div
-          id="opcoes-idioma"
-          role="group"
-          aria-label={t('idioma.opcoes')}
-          className={`language-popover absolute z-[60] min-w-56 border border-white/20 bg-slate-900/75 p-1 backdrop-blur-2xl ${
-            abrirAcima ? 'bottom-full right-0 mb-3' : 'left-0 top-full mt-2 md:left-auto md:right-0'
-          }`}
-        >
-          {IDIOMAS.map((opcao) => (
-            <button
-              key={opcao.codigo}
-              type="button"
-              onClick={() => {
-                definirIdioma(opcao.codigo)
-                setAberto(false)
-              }}
-              aria-pressed={idioma === opcao.codigo}
-              className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm text-slate-200 transition hover:bg-slate-800 aria-pressed:bg-slate-800"
-            >
-              <Bandeira codigo={opcao.codigo} />
-              <span>{opcao.rotulo}</span>
-            </button>
-          ))}
+        <div id="opcoes-idioma" ref={painelRef} className="vidro popover-vidro">
+          <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wider text-suave">
+            {t('idioma.selecionar')}
+          </p>
+          <ListaIdiomas aoEscolher={() => setAberto(false)} />
         </div>
       )}
     </div>
