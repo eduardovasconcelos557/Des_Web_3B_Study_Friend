@@ -16,6 +16,7 @@ from .rotas.conteudo_rotas import router as conteudo_router
 from .rotas.questao_rotas import router as questao_router
 from .rotas.admin_rotas import router as admin_router
 from .rotas.lead_rotas import router as lead_router
+from .rotas.uso_rotas import router as uso_router
 
 app = FastAPI(title="API Study Friend — Python FastAPI")
 
@@ -37,6 +38,7 @@ app.include_router(conteudo_router, prefix="/api")
 app.include_router(questao_router, prefix="/api")
 app.include_router(admin_router, prefix="/api")
 app.include_router(lead_router, prefix="/api")
+app.include_router(uso_router, prefix="/api")
 
 
 @app.get("/api/health")

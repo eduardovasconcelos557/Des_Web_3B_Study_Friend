@@ -275,3 +275,94 @@ def remover_questao_controlador(questao_id: int):
         return {"sucesso": True, "mensagem": "Questão removida."}
     finally:
         conexao.close()
+
+
+def obter_metricas_admin_controlador():
+    conexao = obter_conexao()
+    try:
+        cursor = conexao.cursor()
+        cursor.execute(
+            '''SELECT
+                   (SELECT COUNT(*) FROM usuarios) AS total_perfis,
+                   (SELECT COUNT(*) FROM usuarios WHERE perfil = 'ESTUDANTE') AS total_estudantes,
+                   (SELECT COUNT(*) FROM usuarios WHERE perfil = 'ADMIN') AS total_administradores,
+                   (SELECT COUNT(*) FROM usuarios
+                    WHERE date(data_cadastro) >= date('now','localtime','-6 days')) AS novos_perfis_7_dias,
+                   (SELECT COUNT(*) FROM acessos_plataforma
+                    WHERE date(data_acesso) >= date('now','localtime','-6 days')) AS acessos_7_dias,
+                   (SELECT COUNT(DISTINCT usuario_id) FROM acessos_plataforma
+                    WHERE date(data_acesso) >= date('now','localtime','-6 days')) AS usuarios_ativos_7_dias,
+                   (SELECT COUNT(*) FROM eventos_uso
+                    WHERE tipo_evento = 'clique'
+                      AND date(data_evento) >= date('now','localtime','-6 days')) AS cliques_7_dias,
+                   (SELECT COUNT(*) FROM eventos_uso
+                    WHERE tipo_evento = 'visualizacao'
+                      AND date(data_evento) >= date('now','localtime','-6 days')) AS visualizacoes_7_dias,
+                   (SELECT COUNT(*) FROM progresso_aluno) AS questoes_respondidas,
+                   (SELECT COUNT(*) FROM disciplinas) AS total_disciplinas,
+                   (SELECT COUNT(*) FROM topicos) AS total_topicos,
+                   (SELECT COUNT(*) FROM resumos) AS total_resumos,
+                   (SELECT COUNT(*) FROM flashcards) AS total_flashcards,
+                   (SELECT COUNT(*) FROM questoes) AS total_questoes'''
+        )
+        resumo = cursor.fetchone()
+        cursor.execute(
+            '''WITH RECURSIVE dias(data) AS (
+                   SELECT date('now','localtime','-6 days')
+                   UNION ALL
+                   SELECT date(data, '+1 day') FROM dias
+                   WHERE data < date('now','localtime')
+               ),
+               acessos AS (
+                   SELECT date(data_acesso) AS data, COUNT(*) AS total
+                   FROM acessos_plataforma
+                   WHERE date(data_acesso) >= date('now','localtime','-6 days')
+                   GROUP BY date(data_acesso)
+               ),
+               eventos AS (
+                   SELECT date(data_evento) AS data,
+                          SUM(CASE WHEN tipo_evento = 'clique' THEN 1 ELSE 0 END) AS cliques,
+                          SUM(CASE WHEN tipo_evento = 'visualizacao' THEN 1 ELSE 0 END) AS visualizacoes
+                   FROM eventos_uso
+                   WHERE date(data_evento) >= date('now','localtime','-6 days')
+                   GROUP BY date(data_evento)
+               ),
+               cadastros AS (
+                   SELECT date(data_cadastro) AS data, COUNT(*) AS total
+                   FROM usuarios
+                   WHERE date(data_cadastro) >= date('now','localtime','-6 days')
+                   GROUP BY date(data_cadastro)
+               )
+               SELECT strftime('%d/%m', dias.data) AS data,
+                      COALESCE(acessos.total, 0) AS acessos,
+                      COALESCE(cadastros.total, 0) AS cadastros,
+                      COALESCE(eventos.cliques, 0) AS cliques,
+                      COALESCE(eventos.visualizacoes, 0) AS visualizacoes
+               FROM dias
+               LEFT JOIN acessos ON acessos.data = dias.data
+               LEFT JOIN cadastros ON cadastros.data = dias.data
+               LEFT JOIN eventos ON eventos.data = dias.data
+               ORDER BY dias.data'''
+        )
+        atividade_diaria = cursor.fetchall()
+        cursor.execute(
+            '''SELECT pagina,
+                      SUM(CASE WHEN tipo_evento = 'visualizacao' THEN 1 ELSE 0 END) AS visualizacoes,
+                      SUM(CASE WHEN tipo_evento = 'clique' THEN 1 ELSE 0 END) AS cliques,
+                      COUNT(*) AS interacoes
+               FROM eventos_uso
+               WHERE date(data_evento) >= date('now','localtime','-6 days')
+               GROUP BY pagina
+               ORDER BY visualizacoes DESC, interacoes DESC
+               LIMIT 5'''
+        )
+        return {
+            "sucesso": True,
+            "dados": {
+                **resumo,
+                "atividade_diaria": atividade_diaria,
+                "funcoes_mais_utilizadas": cursor.fetchall(),
+            },
+        }
+    finally:
+        conexao.close()

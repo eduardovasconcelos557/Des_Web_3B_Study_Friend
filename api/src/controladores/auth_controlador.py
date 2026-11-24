@@ -48,8 +48,12 @@ def registrar_controlador(payload: dict):
             "INSERT INTO usuarios (nome, email, senha_hash, perfil) VALUES (?, ?, ?, 'ESTUDANTE')",
             (nome, email, senha_hash),
         )
-        conexao.commit()
         usuario_id = cursor.lastrowid
+        cursor.execute(
+            "INSERT INTO acessos_plataforma (usuario_id, tipo_acesso) VALUES (?, 'CADASTRO')",
+            (usuario_id,),
+        )
+        conexao.commit()
         cursor.execute(
             "SELECT id, nome, email, perfil, data_cadastro FROM usuarios WHERE id = ?",
             (usuario_id,),
@@ -83,10 +87,17 @@ def login_controlador(payload: dict):
             (email,),
         )
         usuario = cursor.fetchone()
+        credenciais_validas = bool(usuario) and verificar_senha(senha, usuario["senha_hash"])
+        if credenciais_validas:
+            cursor.execute(
+                "INSERT INTO acessos_plataforma (usuario_id, tipo_acesso) VALUES (?, 'LOGIN')",
+                (usuario["id"],),
+            )
+            conexao.commit()
     finally:
         conexao.close()
 
-    if not usuario or not verificar_senha(senha, usuario["senha_hash"]):
+    if not credenciais_validas:
         return JSONResponse(
             status_code=status.HTTP_401_UNAUTHORIZED,
             content={"sucesso": False, "mensagem": "E-mail ou senha incorretos."},

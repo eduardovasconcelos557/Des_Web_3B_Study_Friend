@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ProvedorAutenticacao } from './contextos/AutenticacaoContexto'
 import Navbar from './components/Navbar'
+import Rodape from './components/Rodape'
 import Toast from './components/Toast'
 
 import Inicio from './pages/Inicio'
@@ -15,11 +16,23 @@ import Registrar from './pages/Registrar'
 import AdminCMS from './pages/AdminCMS'
 import { ProvedorIdioma } from './i18n/IdiomaContexto'
 import { ProvedorTema } from './contextos/TemaContexto'
+import { registrarUso } from './servicos/uso'
 
 function ConteudoInterno() {
   const [pagina, setPagina] = useState('inicio')
   const [parametros, setParametros] = useState({})
   const [toast, setToast] = useState({ mensagem: '', tipo: 'sucesso', visivel: false })
+
+  useEffect(() => {
+    registrarUso(pagina, 'visualizacao')
+  }, [pagina])
+
+  const contabilizarClique = (evento) => {
+    const alvo = evento.target instanceof Element ? evento.target.closest('button, a, [role="button"]') : null
+    if (alvo && !alvo.hasAttribute('disabled') && alvo.getAttribute('aria-disabled') !== 'true') {
+      registrarUso(pagina, 'clique')
+    }
+  }
 
   const navegar = (novaPagina, novosParametros = {}) => {
     setPagina(novaPagina)
@@ -91,11 +104,12 @@ function ConteudoInterno() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col text-tinta">
+    <div onClickCapture={contabilizarClique} className="min-h-screen flex flex-col text-tinta">
       <Navbar pagina={pagina} aoNavegar={navegar} />
       <main className="flex-1 pb-16 pt-[calc(env(safe-area-inset-top)+6.5rem)] lg:pt-32">
         {renderPagina()}
       </main>
+      <Rodape aoNavegar={navegar} />
       <Toast
         mensagem={toast.mensagem}
         tipo={toast.tipo}

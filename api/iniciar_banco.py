@@ -81,9 +81,29 @@ CREATE TABLE IF NOT EXISTS progresso_aluno (
     UNIQUE(usuario_id, questao_id)
 );
 
+CREATE TABLE IF NOT EXISTS acessos_plataforma (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id      INTEGER NOT NULL,
+    tipo_acesso     TEXT    NOT NULL CHECK(tipo_acesso IN ('CADASTRO','LOGIN')),
+    data_acesso     TEXT    DEFAULT (datetime('now','localtime')),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS eventos_uso (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    pagina          TEXT    NOT NULL
+                            CHECK(pagina IN ('inicio','disciplinas','topicos','resumos','flashcards',
+                                             'exercicios','dashboard','login','registrar','admin')),
+    tipo_evento     TEXT    NOT NULL CHECK(tipo_evento IN ('visualizacao','clique')),
+    data_evento     TEXT    DEFAULT (datetime('now','localtime'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_leads_email      ON leads(email);
 CREATE INDEX IF NOT EXISTS idx_leads_status     ON leads(status_atendimento);
 CREATE INDEX IF NOT EXISTS idx_usuarios_email   ON usuarios(email);
+CREATE INDEX IF NOT EXISTS idx_acessos_data     ON acessos_plataforma(data_acesso);
+CREATE INDEX IF NOT EXISTS idx_eventos_uso_data ON eventos_uso(data_evento);
+CREATE INDEX IF NOT EXISTS idx_eventos_uso_pagina_tipo ON eventos_uso(pagina, tipo_evento);
 CREATE INDEX IF NOT EXISTS idx_topicos_disciplina ON topicos(disciplina_id);
 CREATE INDEX IF NOT EXISTS idx_resumos_topico   ON resumos(topico_id);
 CREATE INDEX IF NOT EXISTS idx_flashcards_topico ON flashcards(topico_id);
