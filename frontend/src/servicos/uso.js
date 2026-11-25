@@ -45,9 +45,14 @@ function agendarEnvio() {
   }
 }
 
-export function registrarUso(pagina, tipo_evento) {
+const FORMATO_ACAO = /^[a-z0-9_]{1,40}$/
+
+// acao: identificador do botão clicado (atributo data-metrica), opcional
+export function registrarUso(pagina, tipo_evento, acao = null) {
   if (!PAGINAS.has(pagina) || !['visualizacao', 'clique'].includes(tipo_evento)) return
-  filaEventos.push({ pagina, tipo_evento })
+  const evento = { pagina, tipo_evento }
+  if (tipo_evento === 'clique' && acao && FORMATO_ACAO.test(acao)) evento.acao = acao
+  filaEventos.push(evento)
   if (filaEventos.length >= 100) {
     window.clearTimeout(temporizador)
     void enviarEventos()

@@ -27,7 +27,7 @@ export default function PaginaTopicos({ disciplinaId, disciplinaNome, area, disc
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
-      <button onClick={() => aoNavegar('disciplinas')} className="btn-voltar">
+      <button data-metrica="voltar" onClick={() => aoNavegar('disciplinas')} className="btn-voltar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
@@ -55,6 +55,7 @@ export default function PaginaTopicos({ disciplinaId, disciplinaNome, area, disc
           <button
             key={a.valor}
             onClick={() => setAnoFiltro(a.valor)}
+            data-metrica="filtrar_ano"
             aria-pressed={anoFiltro === a.valor}
             className="chip"
           >
@@ -84,6 +85,7 @@ export default function PaginaTopicos({ disciplinaId, disciplinaNome, area, disc
               <div className="flex flex-wrap items-center gap-2">
                 {topico.total_resumos > 0 && (
                   <button
+                    data-metrica="abrir_resumo"
                     onClick={() => aoNavegar('resumos', { topicoId: topico.id, topicoTitulo: tConteudo('topicos', topico.id, 'titulo', topico.titulo), disciplinaNome, origem })}
                     className="chip px-3.5"
                   >
@@ -92,6 +94,7 @@ export default function PaginaTopicos({ disciplinaId, disciplinaNome, area, disc
                 )}
                 {topico.total_flashcards > 0 && (
                   <button
+                    data-metrica="abrir_flashcards"
                     onClick={() => aoNavegar('flashcards', { topicoId: topico.id, topicoTitulo: tConteudo('topicos', topico.id, 'titulo', topico.titulo), disciplinaNome, origem })}
                     className="chip px-3.5"
                   >
@@ -100,6 +103,7 @@ export default function PaginaTopicos({ disciplinaId, disciplinaNome, area, disc
                 )}
                 {topico.total_questoes > 0 && (
                   <button
+                    data-metrica="abrir_exercicios"
                     onClick={() => aoNavegar('exercicios', { topicoId: topico.id, disciplinaNome, origem })}
                     className="chip px-3.5"
                   >

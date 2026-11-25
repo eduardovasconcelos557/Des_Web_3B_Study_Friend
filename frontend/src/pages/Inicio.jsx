@@ -42,10 +42,10 @@ export default function Inicio({ aoNavegar }) {
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2 lg:justify-start">
-              <button onClick={() => aoNavegar('disciplinas')} className="btn-primary px-6 py-3">
+              <button data-metrica="explorar_disciplinas" onClick={() => aoNavegar('disciplinas')} className="btn-primary px-6 py-3">
                 {t('inicio.explorarDisciplinas')}
               </button>
-              <button onClick={() => aoNavegar('exercicios')} className="btn-secondary px-6 py-3">
+              <button data-metrica="banco_questoes" onClick={() => aoNavegar('exercicios')} className="btn-secondary px-6 py-3">
                 {t('inicio.bancoQuestoes')}
               </button>
             </div>
@@ -79,6 +79,7 @@ export default function Inicio({ aoNavegar }) {
                   {lista.map((d) => (
                     <button
                       key={d.id}
+                      data-metrica="abrir_disciplina"
                       onClick={() => aoNavegar('topicos', { disciplinaId: d.id, disciplinaNome: d.nome, area: d.area_conhecimento, icone: d.icone })}
                       className="card card-interativo p-5 text-left"
                     >

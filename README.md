@@ -25,8 +25,20 @@ A aplicação conta com autenticação JWT, dashboard de progresso do aluno, pai
 - 📊 **Dashboard de Progresso:** Barras de desempenho por disciplina com taxa de acerto.
 - 🔐 **Autenticação JWT:** Cadastro, login e proteção de rotas com token.
 - 🎛️ **Painel Admin (CMS):** Gerenciamento de disciplinas, tópicos, resumos, flashcards e questões.
+- 📈 **Métricas de uso (só admin):** Visualizações e cliques por seção, conta-cliques por botão, usuários cadastrados com último acesso e filtro de período (7 dias, 30 dias ou desde o início).
 - 🧭 **Disciplinas por área com ícones:** Tarjetas agrupadas em Exatas, Humanas, Biológicas e Linguagens, cada uma com ícone SVG próprio.
 - 🪧 **Logotipo próprio:** Logo da plataforma (`logo.png`) no cabeçalho da aplicação.
+
+---
+
+## 📈 Métricas de Uso
+
+O site registra automaticamente como a plataforma é usada e mostra tudo na aba **Admin → Visão geral** (e **Admin → Usuários**), que só o perfil ADMIN acessa.
+
+- **O que é coletado:** cada página aberta (visualização) e cada clique em botão ou link, com a seção e a data. Cliques em botões marcados recebem também o nome do botão (conta-cliques). Logins e cadastros são registrados na tabela `acessos_plataforma`.
+- **Onde fica:** tabelas `eventos_uso` e `acessos_plataforma` do SQLite. Os eventos não guardam nome, e-mail nem IP.
+- **Proteção:** as rotas `/api/admin/metricas` e `/api/admin/usuarios` exigem token de administrador; a rota pública `/api/uso/eventos` aceita no máximo 300 eventos por minuto por IP.
+- **Como contar um botão novo:** adicione `data-metrica="nome_da_acao"` ao botão (letras minúsculas, números e `_`) e, se quiser um nome amigável no painel, a chave `metrica.nome_da_acao` em `frontend/src/i18n/dicionarios.js`.
 
 ---
 

@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS eventos_uso (
                             CHECK(pagina IN ('inicio','disciplinas','topicos','resumos','flashcards',
                                              'exercicios','dashboard','login','registrar','admin')),
     tipo_evento     TEXT    NOT NULL CHECK(tipo_evento IN ('visualizacao','clique')),
+    acao            TEXT    DEFAULT NULL,
     data_evento     TEXT    DEFAULT (datetime('now','localtime'))
 );
 
@@ -436,6 +437,14 @@ def _migrar_disciplinas_icone(cursor):
         cursor.execute('ALTER TABLE disciplinas ADD COLUMN icone TEXT DEFAULT NULL')
 
 
+def _migrar_eventos_uso_acao(cursor):
+    """Adiciona a coluna 'acao' (botão clicado) na tabela eventos_uso (bancos antigos)."""
+    colunas = [linha['name'] for linha in cursor.execute('PRAGMA table_info(eventos_uso)').fetchall()]
+    if 'acao' not in colunas:
+        cursor.execute('ALTER TABLE eventos_uso ADD COLUMN acao TEXT DEFAULT NULL')
+    cursor.execute('CREATE INDEX IF NOT EXISTS idx_eventos_uso_acao ON eventos_uso(acao)')
+
+
 def semear_dados(cursor):
     """Insere o conteúdo pedagógico (incremental e idempotente) e o admin padrão.
 
@@ -539,6 +548,7 @@ def inicializar_banco():
 
     cursor.executescript(DDL_ESTRUTURA)
     _migrar_disciplinas_icone(cursor)
+    _migrar_eventos_uso_acao(cursor)
     semear_dados(cursor)
     conexao.commit()
     conexao.close()

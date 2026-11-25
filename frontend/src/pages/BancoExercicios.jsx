@@ -53,7 +53,7 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
   return (
     <div className="min-h-[calc(100vh-3.5rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
       {topicoIdFiltro && origem?.disciplinaId && (
-        <button onClick={() => aoNavegar('topicos', origem)} className="btn-voltar">
+        <button data-metrica="voltar" onClick={() => aoNavegar('topicos', origem)} className="btn-voltar">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
@@ -78,6 +78,7 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
             <button
               key={n}
               onClick={() => setNivelFiltro(n)}
+              data-metrica="filtrar_nivel"
               aria-pressed={nivelFiltro === n}
               className="chip"
             >
@@ -120,6 +121,7 @@ export default function BancoExercicios({ aoNavegar, topicoIdFiltro, disciplinaN
                       <button
                         key={letra}
                         onClick={() => enviarResposta(q.id, letra)}
+                        data-metrica="responder_questao"
                         disabled={!!enviada}
                         className={`text-left p-3.5 rounded-2xl border text-sm transition ${corAlternativa(q.id, letra)} ${enviada ? 'cursor-default' : 'cursor-pointer'}`}
                       >

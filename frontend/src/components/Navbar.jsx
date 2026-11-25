@@ -97,6 +97,7 @@ function Abas({ abas, pagina, aoNavegar, className = '' }) {
             ref={(el) => { abaRefs.current[destino] = el }}
             type="button"
             onClick={() => aoNavegar(destino)}
+            data-metrica={`menu_${destino}`}
             aria-current={pagina === destino ? 'page' : ativa ? 'true' : undefined}
             className={`aba ${ativa ? 'aba--ativa' : ''}`}
           >
@@ -113,7 +114,7 @@ function BotaoTema() {
   const { escuro, alternarTema } = usarTema()
   const { t } = usarIdioma()
   return (
-    <button type="button" onClick={alternarTema} aria-label={t('tema.escuro')} aria-pressed={escuro} title={t('tema.escuro')} className="vidro botao-circular">
+    <button type="button" data-metrica="alternar_tema" onClick={alternarTema} aria-label={t('tema.escuro')} aria-pressed={escuro} title={t('tema.escuro')} className="vidro botao-circular">
       <Icone tipo={escuro ? 'sol' : 'lua'} className="h-6 w-6" />
     </button>
   )
@@ -146,6 +147,7 @@ function MenuCompacto({ aoNavegar }) {
         ref={botaoRef}
         type="button"
         onClick={() => setAberto((valor) => !valor)}
+        data-metrica="abrir_menu"
         aria-label={t('navbar.menu')}
         aria-expanded={aberto}
         aria-controls="menu-compacto"
@@ -167,25 +169,25 @@ function MenuCompacto({ aoNavegar }) {
           {autenticado ? (
             <div className="flex flex-col gap-0.5">
               {ehAdmin && (
-                <button type="button" className="opcao-menu" onClick={() => ir('admin')}>
+                <button type="button" data-metrica="menu_admin" className="opcao-menu" onClick={() => ir('admin')}>
                   <Icone tipo="admin" className="h-5 w-5" />
                   {t('navbar.admin')}
                 </button>
               )}
-              <button type="button" className="opcao-menu hover:!text-erro" onClick={() => { logout(); ir('inicio') }}>
+              <button type="button" data-metrica="sair" className="opcao-menu hover:!text-erro" onClick={() => { logout(); ir('inicio') }}>
                 <Icone tipo="sair" className="h-5 w-5" />
                 {t('navbar.sair')}
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-2 px-1">
-              <button type="button" className="btn-secondary px-3" onClick={() => ir('login')}>{t('navbar.entrar')}</button>
-              <button type="button" className="btn-primary px-3" onClick={() => ir('registrar')}>{t('navbar.cadastrar')}</button>
+              <button type="button" data-metrica="entrar" className="btn-secondary px-3" onClick={() => ir('login')}>{t('navbar.entrar')}</button>
+              <button type="button" data-metrica="cadastrar" className="btn-primary px-3" onClick={() => ir('registrar')}>{t('navbar.cadastrar')}</button>
             </div>
           )}
 
           <div className="mx-2 my-2 h-px bg-borda" />
-          <button type="button" role="switch" aria-checked={escuro} onClick={alternarTema} className="opcao-menu">
+          <button type="button" data-metrica="alternar_tema" role="switch" aria-checked={escuro} onClick={alternarTema} className="opcao-menu">
             <Icone tipo="lua" className="h-5 w-5" />
             <span className="flex-1">{t('tema.escuro')}</span>
             <span aria-hidden="true" className={`interruptor ${escuro ? 'interruptor--ligado' : ''}`} />
@@ -221,6 +223,7 @@ export default function Navbar({ aoNavegar, pagina }) {
         <button
           type="button"
           onClick={() => aoNavegar('inicio')}
+          data-metrica="logo_inicio"
           aria-label={`Study Friend — ${t('navbar.inicio')}`}
           className="-ml-2 flex items-center rounded-2xl px-2 transition-transform hover:scale-[1.03]"
         >
@@ -251,6 +254,7 @@ export default function Navbar({ aoNavegar, pagina }) {
               <button
                 type="button"
                 onClick={() => { logout(); aoNavegar('inicio') }}
+                data-metrica="sair"
                 aria-label={t('navbar.sair')}
                 title={t('navbar.sair')}
                 className="flex h-[54px] w-[54px] items-center justify-center rounded-full text-suave transition hover:bg-erro/10 hover:text-erro"
@@ -263,12 +267,13 @@ export default function Navbar({ aoNavegar, pagina }) {
               <button
                 type="button"
                 onClick={() => aoNavegar('login')}
+                data-metrica="entrar"
                 aria-current={pagina === 'login' ? 'page' : undefined}
                 className={`h-[54px] rounded-full px-5 text-sm font-semibold transition hover:bg-elevada ${pagina === 'login' ? 'bg-marca/10 text-marca-texto' : 'text-tinta'}`}
               >
                 {t('navbar.entrar')}
               </button>
-              <button type="button" onClick={() => aoNavegar('registrar')} aria-current={pagina === 'registrar' ? 'page' : undefined} className="btn-primary h-[54px] px-6">
+              <button type="button" data-metrica="cadastrar" onClick={() => aoNavegar('registrar')} aria-current={pagina === 'registrar' ? 'page' : undefined} className="btn-primary h-[54px] px-6">
                 {t('navbar.cadastrar')}
               </button>
             </div>

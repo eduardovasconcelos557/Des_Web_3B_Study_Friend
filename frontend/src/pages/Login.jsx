@@ -68,13 +68,13 @@ export default function Login({ aoNavegar }) {
             />
           </div>
 
-          <button type="submit" disabled={carregando} className="btn-primary w-full py-3">
+          <button type="submit" data-metrica="enviar_login" disabled={carregando} className="btn-primary w-full py-3">
             {carregando ? t('login.entrando') : t('login.entrar')}
           </button>
 
           <p className="text-center text-sm text-suave">
             {t('login.semConta')}{' '}
-            <button type="button" onClick={() => aoNavegar('registrar')} className="link">
+            <button type="button" data-metrica="ir_cadastro" onClick={() => aoNavegar('registrar')} className="link">
               {t('login.cadastreSe')}
             </button>
           </p>

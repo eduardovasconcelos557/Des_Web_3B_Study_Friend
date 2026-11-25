@@ -84,13 +84,13 @@ export default function Registrar({ aoNavegar }) {
             />
           </div>
 
-          <button type="submit" disabled={carregando} className="btn-primary w-full py-3">
+          <button type="submit" data-metrica="enviar_cadastro" disabled={carregando} className="btn-primary w-full py-3">
             {carregando ? t('registrar.criando') : t('registrar.criar')}
           </button>
 
           <p className="text-center text-sm text-suave">
             {t('registrar.jaTemConta')}{' '}
-            <button type="button" onClick={() => aoNavegar('login')} className="link">
+            <button type="button" data-metrica="ir_login" onClick={() => aoNavegar('login')} className="link">
               {t('login.entrar')}
             </button>
           </p>

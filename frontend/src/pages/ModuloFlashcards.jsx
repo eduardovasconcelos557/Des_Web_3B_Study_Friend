@@ -25,7 +25,7 @@ export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNom
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] py-8 px-4 sm:px-6 lg:px-8 max-w-2xl mx-auto">
-      <button onClick={() => (origem?.disciplinaId ? aoNavegar('topicos', origem) : aoNavegar('disciplinas'))} className="btn-voltar">
+      <button data-metrica="voltar" onClick={() => (origem?.disciplinaId ? aoNavegar('topicos', origem) : aoNavegar('disciplinas'))} className="btn-voltar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
@@ -54,6 +54,7 @@ export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNom
             type="button"
             className="block w-full text-left focus-visible:rounded-xl"
             onClick={() => setVirado(!virado)}
+            data-metrica="virar_flashcard"
             aria-label={t(virado ? 'flashcards.mostrarPergunta' : 'flashcards.mostrarResposta')}
             aria-pressed={virado}
           >
@@ -82,10 +83,10 @@ export default function ModuloFlashcards({ topicoId, topicoTitulo, disciplinaNom
           </button>
 
           <div className="flex items-center justify-center gap-3">
-            <button onClick={anterior} className="btn-secondary">
+            <button data-metrica="flashcard_anterior" onClick={anterior} className="btn-secondary">
               {t('flashcards.anterior')}
             </button>
-            <button onClick={proximo} className="btn-primary">
+            <button data-metrica="flashcard_proximo" onClick={proximo} className="btn-primary">
               {t('flashcards.proximo')}
             </button>
           </div>
