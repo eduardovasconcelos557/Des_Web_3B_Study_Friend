@@ -32,6 +32,7 @@ export function ListaIdiomas({ aoEscolher }) {
         <button
           key={opcao.codigo}
           type="button"
+          data-metrica="trocar_idioma"
           onClick={() => {
             definirIdioma(opcao.codigo)
             aoEscolher?.()
@@ -64,6 +65,7 @@ export default function IdiomaSeletor({ className = '' }) {
         ref={botaoRef}
         type="button"
         onClick={() => setAberto((valor) => !valor)}
+        data-metrica="abrir_idiomas"
         aria-label={`${t('idioma.selecionar')}: ${idiomaAtual.rotulo}`}
         aria-expanded={aberto}
         aria-controls="opcoes-idioma"

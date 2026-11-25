@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Request
+from typing import Literal
+
+from fastapi import APIRouter, Depends, Query, Request
 
 from ..config.dependencias import exigir_admin
 from ..controladores.admin_controlador import (
@@ -14,6 +16,7 @@ from ..controladores.admin_controlador import (
     criar_topico_controlador,
     listar_disciplinas_admin_controlador,
     listar_questoes_admin_controlador,
+    listar_usuarios_admin_controlador,
     obter_metricas_admin_controlador,
     remover_disciplina_controlador,
     remover_flashcard_controlador,
@@ -26,8 +29,16 @@ router = APIRouter(prefix="/admin", tags=["Administração CMS"])
 
 
 @router.get("/metricas")
-def obter_metricas_admin(_admin: dict = Depends(exigir_admin)):
-    return obter_metricas_admin_controlador()
+def obter_metricas_admin(
+    periodo: Literal["7d", "30d", "total"] = Query(default="7d"),
+    _admin: dict = Depends(exigir_admin),
+):
+    return obter_metricas_admin_controlador(periodo)
+
+
+@router.get("/usuarios")
+def listar_usuarios_admin(_admin: dict = Depends(exigir_admin)):
+    return listar_usuarios_admin_controlador()
 
 
 async def _ler_payload(request: Request) -> dict:

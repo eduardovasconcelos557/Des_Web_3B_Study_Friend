@@ -49,6 +49,7 @@ export default function HubDisciplinas({ aoNavegar }) {
                   {lista.map((d) => (
                     <button
                       key={d.id}
+                      data-metrica="abrir_disciplina"
                       onClick={() => aoNavegar('topicos', { disciplinaId: d.id, disciplinaNome: d.nome, area: d.area_conhecimento, icone: d.icone })}
                       className="card card-interativo p-5 text-left"
                     >

@@ -30,7 +30,8 @@ function ConteudoInterno() {
   const contabilizarClique = (evento) => {
     const alvo = evento.target instanceof Element ? evento.target.closest('button, a, [role="button"]') : null
     if (alvo && !alvo.hasAttribute('disabled') && alvo.getAttribute('aria-disabled') !== 'true') {
-      registrarUso(pagina, 'clique')
+      // Botões marcados com data-metrica="nome_da_acao" entram no conta-cliques
+      registrarUso(pagina, 'clique', alvo.getAttribute('data-metrica'))
     }
   }
 

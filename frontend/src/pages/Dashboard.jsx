@@ -25,7 +25,7 @@ export default function Dashboard({ aoNavegar }) {
           <Ilustracao tipo="progresso" className="mx-auto h-28 w-40" />
           <h2 className="text-xl font-bold text-tinta">{t('dashboard.acessoTitulo')}</h2>
           <p className="text-sm text-suave">{t('dashboard.acessoTexto')}</p>
-          <button onClick={() => aoNavegar('login')} className="btn-primary">
+          <button data-metrica="ir_login" onClick={() => aoNavegar('login')} className="btn-primary">
             {t('login.entrar')}
           </button>
         </div>
@@ -50,7 +50,7 @@ export default function Dashboard({ aoNavegar }) {
       ) : stats.total_resolvidas === 0 ? (
         <EstadoVazio tipo="progresso">
           <p>{t('dashboard.vazio')}</p>
-          <button onClick={() => aoNavegar('exercicios')} className="btn-primary">
+          <button data-metrica="ir_exercicios" onClick={() => aoNavegar('exercicios')} className="btn-primary">
             {t('dashboard.comecar')}
           </button>
         </EstadoVazio>

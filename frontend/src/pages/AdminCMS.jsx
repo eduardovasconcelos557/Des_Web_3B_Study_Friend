@@ -1,17 +1,21 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import api from '../servicos/api'
 import { usarAutenticacao } from '../contextos/AutenticacaoContexto'
 import { usarIdioma } from '../i18n/IdiomaContexto'
 
-const ABAS = ['Visão geral', 'Disciplinas', 'Tópicos', 'Resumos', 'Flashcards', 'Questões']
+const ABAS = ['Visão geral', 'Usuários', 'Disciplinas', 'Tópicos', 'Resumos', 'Flashcards', 'Questões']
 const ROTAS_ABA = {
   'Visão geral': 'metricas',
+  'Usuários': 'usuarios',
   Disciplinas: 'disciplinas',
   'Tópicos': 'topicos',
   Resumos: 'resumos',
   Flashcards: 'flashcards',
   'Questões': 'questoes',
 }
+const PERIODOS = ['7d', '30d', 'total']
+const ABAS_ESPECIAIS = ['Visão geral', 'Usuários']
+
 const ROTULOS_PAGINAS = {
   inicio: 'navbar.inicio',
   disciplinas: 'navbar.disciplinas',
@@ -27,13 +31,19 @@ const ROTULOS_PAGINAS = {
 
 export default function AdminCMS({ aoNavegar }) {
   const { ehAdmin, autenticado } = usarAutenticacao()
-  const { t, tDisciplina, tArea, tConteudo } = usarIdioma()
+  const { idioma, t, tDisciplina, tArea, tConteudo } = usarIdioma()
   const [aba, setAba] = useState('Visão geral')
   const [dados, setDados] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [metricas, setMetricas] = useState(null)
   const [erroMetricas, setErroMetricas] = useState(false)
   const [carregandoMetricas, setCarregandoMetricas] = useState(false)
+  const [periodo, setPeriodo] = useState('7d')
+  const [usuarios, setUsuarios] = useState([])
+  const [carregandoUsuarios, setCarregandoUsuarios] = useState(false)
+  const [erroUsuarios, setErroUsuarios] = useState(false)
+  const [busca, setBusca] = useState('')
+  const graficoRef = useRef(null)
   const [msg, setMsg] = useState('')
 
   const carregarDados = () => {
@@ -49,7 +59,7 @@ export default function AdminCMS({ aoNavegar }) {
     if (aba === 'Visão geral') {
       setCarregandoMetricas(true)
       setErroMetricas(false)
-      api.get('/admin/metricas')
+      api.get('/admin/metricas', { params: { periodo } })
         .then(({ data }) => {
           if (!data.sucesso) throw new Error('Não foi possível carregar as métricas.')
           setMetricas(data.dados)
@@ -58,8 +68,25 @@ export default function AdminCMS({ aoNavegar }) {
         .finally(() => setCarregandoMetricas(false))
       return
     }
+    if (aba === 'Usuários') {
+      setCarregandoUsuarios(true)
+      setErroUsuarios(false)
+      api.get('/admin/usuarios')
+        .then(({ data }) => {
+          if (!data.sucesso) throw new Error('Não foi possível carregar os usuários.')
+          setUsuarios(data.dados)
+        })
+        .catch(() => setErroUsuarios(true))
+        .finally(() => setCarregandoUsuarios(false))
+      return
+    }
     carregarDados()
-  }, [aba, autenticado, ehAdmin])
+  }, [aba, periodo, autenticado, ehAdmin])
+
+  // No celular o gráfico de 30 dias rola para o lado: começa mostrando os dias mais recentes
+  useEffect(() => {
+    if (graficoRef.current) graficoRef.current.scrollLeft = graficoRef.current.scrollWidth
+  }, [metricas])
 
   if (!autenticado || !ehAdmin) {
     return (
@@ -126,7 +153,7 @@ export default function AdminCMS({ aoNavegar }) {
                   </td>
                 ))}
                 <td className="py-2.5 px-4">
-                  <button onClick={() => excluir(item.id)} className="text-erro hover:underline text-xs font-semibold">
+                  <button data-metrica="admin_excluir" onClick={() => excluir(item.id)} className="text-erro hover:underline text-xs font-semibold">
                     {t('admin.excluir')}
                   </button>
                 </td>
@@ -146,22 +173,25 @@ export default function AdminCMS({ aoNavegar }) {
       return <div role="alert" className="card p-6 text-center text-erro">{t('admin.metricas.erro')}</div>
     }
 
+    const detalhePeriodo = t(`admin.periodo.detalhe.${metricas.periodo}`)
     const cards = [
       { titulo: t('admin.metricas.perfis'), valor: metricas.total_perfis, detalhe: t('admin.metricas.estudantes', { total: metricas.total_estudantes }) },
-      { titulo: t('admin.metricas.novosPerfis'), valor: metricas.novos_perfis_7_dias, detalhe: t('admin.metricas.ultimos7Dias') },
-      { titulo: t('admin.metricas.acessos'), valor: metricas.acessos_7_dias, detalhe: t('admin.metricas.acessosDetalhe') },
-      { titulo: t('admin.metricas.cliques'), valor: metricas.cliques_7_dias, detalhe: t('admin.metricas.cliquesDetalhe') },
-      { titulo: t('admin.metricas.ativos'), valor: metricas.usuarios_ativos_7_dias, detalhe: t('admin.metricas.ultimos7Dias') },
+      { titulo: t('admin.metricas.novosPerfis'), valor: metricas.novos_perfis, detalhe: detalhePeriodo },
+      { titulo: t('admin.metricas.acessos'), valor: metricas.acessos, detalhe: t('admin.metricas.acessosDetalhe') },
+      { titulo: t('admin.metricas.cliques'), valor: metricas.cliques, detalhe: t('admin.metricas.cliquesDetalhe') },
+      { titulo: t('admin.metricas.ativos'), valor: metricas.usuarios_ativos, detalhe: detalhePeriodo },
       { titulo: t('admin.metricas.questoesRespondidas'), valor: metricas.questoes_respondidas, detalhe: t('admin.metricas.participacao') },
       { titulo: t('admin.metricas.conteudos'), valor: metricas.total_disciplinas + metricas.total_topicos + metricas.total_resumos + metricas.total_flashcards + metricas.total_questoes, detalhe: t('admin.metricas.conteudosDetalhe', { disciplinas: metricas.total_disciplinas, topicos: metricas.total_topicos, resumos: metricas.total_resumos, flashcards: metricas.total_flashcards, questoes: metricas.total_questoes }) },
     ]
-    const maiorAtividade = Math.max(1, ...metricas.atividade_diaria.flatMap((dia) => [
+    const maiorAtividade = Math.max(1, ...metricas.atividade.flatMap((dia) => [
       dia.acessos,
       dia.cadastros,
       dia.cliques,
       dia.visualizacoes,
     ]))
     const maiorUsoFuncao = Math.max(1, ...metricas.funcoes_mais_utilizadas.map((funcao) => funcao.interacoes))
+    const maiorCliqueBotao = Math.max(1, ...metricas.botoes_mais_clicados.map((botao) => botao.cliques))
+    const muitosPontos = metricas.atividade.length > 12
 
     return (
       <section aria-label={t('admin.metricas.titulo')} className="space-y-6">
@@ -178,7 +208,10 @@ export default function AdminCMS({ aoNavegar }) {
         <div className="card p-5 sm:p-6">
           <div className="mb-5">
             <h2 className="font-display text-lg font-bold">{t('admin.metricas.atividade')}</h2>
-            <p className="mt-1 text-xs text-suave">{t('admin.metricas.atividadeDetalhe')}</p>
+            <p className="mt-1 text-xs text-suave">
+              {t('admin.metricas.atividadeDetalhe')}
+              {metricas.periodo === 'total' && <> {t('admin.metricas.atividadeMensal')}</>}
+            </p>
           </div>
           <div className="mb-4 flex flex-wrap gap-4 text-xs text-suave">
             <span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-marca" />{t('admin.metricas.acessos')}</span>
@@ -186,9 +219,10 @@ export default function AdminCMS({ aoNavegar }) {
             <span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-sucesso" />{t('admin.metricas.cliques')}</span>
             <span className="inline-flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-estrela" />{t('admin.metricas.visualizacoes')}</span>
           </div>
-          <div className="grid grid-cols-7 gap-2 sm:gap-4" role="img" aria-label={t('admin.metricas.graficoDescricao')}>
-            {metricas.atividade_diaria.map((dia) => (
-              <div key={dia.data} className="flex min-w-0 flex-col items-center gap-2">
+          <div ref={graficoRef} className="overflow-x-auto pb-1">
+          <div className={`flex ${muitosPontos ? 'gap-1 min-w-[42rem]' : 'gap-2 sm:gap-4'}`} role="img" aria-label={t('admin.metricas.graficoDescricao')}>
+            {metricas.atividade.map((dia, indice) => (
+              <div key={dia.data} className="flex min-w-0 flex-1 flex-col items-center gap-2">
                 <div className="flex h-36 w-full items-end justify-center gap-0.5 border-b border-borda sm:gap-1">
                   {[
                     ['acessos', 'bg-marca'],
@@ -204,13 +238,15 @@ export default function AdminCMS({ aoNavegar }) {
                     />
                   ))}
                 </div>
-                <span className="text-[10px] text-suave sm:text-xs">{dia.data}</span>
+                <span aria-hidden="true" className={`text-[10px] text-suave sm:text-xs ${muitosPontos && indice % 3 !== 0 && indice !== metricas.atividade.length - 1 ? 'invisible' : ''}`}>{dia.data}</span>
                 <span className="sr-only">{t('admin.metricas.diaResumo', { data: dia.data, acessos: dia.acessos, cadastros: dia.cadastros, cliques: dia.cliques, visualizacoes: dia.visualizacoes })}</span>
               </div>
             ))}
           </div>
+          </div>
         </div>
 
+        <div className="grid gap-6 lg:grid-cols-2">
         <div className="card p-5 sm:p-6">
           <div className="mb-5">
             <h2 className="font-display text-lg font-bold">{t('admin.metricas.funcoes')}</h2>
@@ -226,7 +262,7 @@ export default function AdminCMS({ aoNavegar }) {
                   <div className="min-w-0 flex-1">
                     <div className="mb-1 flex items-baseline justify-between gap-3">
                       <span className="truncate text-sm font-semibold text-tinta">{t(ROTULOS_PAGINAS[funcao.pagina])}</span>
-                      <span className="shrink-0 text-xs tabular-nums text-suave">{funcao.visualizacoes.toLocaleString()} {t('admin.metricas.visualizacoes')} · {funcao.cliques.toLocaleString()} {t('admin.metricas.cliques')}</span>
+                      <span className="shrink-0 text-xs tabular-nums text-suave">{funcao.visualizacoes.toLocaleString()} {t('admin.metricas.visualizacoes')} · {funcao.cliques.toLocaleString()} {t('admin.metricas.cliques').toLowerCase()}</span>
                     </div>
                     <div className="h-2 overflow-hidden rounded-full bg-elevada">
                       <div className="h-full rounded-full bg-gradient-to-r from-marca to-roxo" style={{ width: `${(funcao.interacoes / maiorUsoFuncao) * 100}%` }} />
@@ -237,6 +273,133 @@ export default function AdminCMS({ aoNavegar }) {
             </ol>
           )}
         </div>
+
+        <div className="card p-5 sm:p-6">
+          <div className="mb-5">
+            <h2 className="font-display text-lg font-bold">{t('admin.metricas.botoes')}</h2>
+            <p className="mt-1 text-xs text-suave">{t('admin.metricas.botoesDetalhe')}</p>
+          </div>
+          {metricas.botoes_mais_clicados.length === 0 ? (
+            <p className="py-6 text-center text-sm text-suave">{t('admin.metricas.semDadosBotoes')}</p>
+          ) : (
+            <ol className="space-y-4">
+              {metricas.botoes_mais_clicados.map((botao, indice) => (
+                <li key={botao.acao} className="flex items-center gap-3">
+                  <span className="w-6 text-sm font-bold tabular-nums text-suave">{indice + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-1 flex items-baseline justify-between gap-3">
+                      <span className="truncate text-sm font-semibold text-tinta">{rotuloAcao(botao.acao)}</span>
+                      <span className="shrink-0 text-xs tabular-nums text-suave">{botao.cliques.toLocaleString()} {t('admin.metricas.cliques').toLowerCase()}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-elevada">
+                      <div className="h-full rounded-full bg-gradient-to-r from-sucesso to-marca" style={{ width: `${(botao.cliques / maiorCliqueBotao) * 100}%` }} />
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Nome amigável do botão; se não houver tradução, mostra o identificador
+  const rotuloAcao = (acao) => {
+    const chave = `metrica.${acao}`
+    const texto = t(chave)
+    return texto === chave ? acao : texto
+  }
+
+  const formatarData = (valor) => {
+    if (!valor) return t('admin.usuarios.nunca')
+    const data = new Date(String(valor).replace(' ', 'T'))
+    if (Number.isNaN(data.getTime())) return valor
+    return data.toLocaleString(idioma, { dateStyle: 'short', timeStyle: 'short' })
+  }
+
+  const renderSeletorPeriodo = () => (
+    <div role="group" aria-label={t('admin.periodo.rotulo')} className="mb-6 flex flex-wrap items-center gap-2">
+      <span className="mr-1 text-sm font-medium text-suave">{t('admin.periodo.rotulo')}:</span>
+      {PERIODOS.map((opcao) => (
+        <button
+          key={opcao}
+          type="button"
+          data-metrica="admin_periodo"
+          onClick={() => setPeriodo(opcao)}
+          aria-pressed={periodo === opcao}
+          className={`chip whitespace-nowrap ${periodo === opcao ? 'bg-marca/10 text-marca-texto' : ''}`}
+        >
+          {t(`admin.periodo.${opcao}`)}
+        </button>
+      ))}
+    </div>
+  )
+
+  const renderUsuarios = () => {
+    if (carregandoUsuarios) {
+      return <div role="status" aria-label={t('comum.carregando')} className="py-16 text-center text-suave"><div className="carregando mb-0"></div></div>
+    }
+    if (erroUsuarios) {
+      return <div role="alert" className="card p-6 text-center text-erro">{t('admin.usuarios.erro')}</div>
+    }
+
+    const termo = busca.trim().toLowerCase()
+    const filtrados = termo
+      ? usuarios.filter((u) => u.nome.toLowerCase().includes(termo) || u.email.toLowerCase().includes(termo))
+      : usuarios
+    const colunas = ['nome', 'email', 'perfil', 'data_cadastro', 'ultimo_acesso', 'total_acessos']
+
+    return (
+      <section aria-label={t('admin.usuarios.titulo')} className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 className="font-display text-lg font-bold">{t('admin.usuarios.titulo')}</h2>
+            <p className="mt-1 text-xs text-suave">{t('admin.usuarios.detalhe')}</p>
+          </div>
+          <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto">
+            <span className="text-xs tabular-nums text-suave" aria-live="polite">
+              {t('admin.usuarios.total', { total: filtrados.length, geral: usuarios.length })}
+            </span>
+            <input
+              type="search"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder={t('admin.usuarios.buscar')}
+              aria-label={t('admin.usuarios.buscar')}
+              className="input py-2 sm:w-64"
+            />
+          </div>
+        </div>
+
+        {filtrados.length === 0 ? (
+          <div className="card py-10 text-center text-suave">{t('admin.nenhum')}</div>
+        ) : (
+          <div className="card overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="text-suave border-b border-borda">
+                <tr>
+                  {colunas.map((c) => <th key={c} scope="col" className="py-3 px-4 font-medium whitespace-nowrap">{t(`admin.col.${c}`)}</th>)}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-borda">
+                {filtrados.map((u) => (
+                  <tr key={u.id} className="hover:bg-elevada transition">
+                    <td className="py-2.5 px-4 font-semibold text-tinta">{u.nome}</td>
+                    <td className="py-2.5 px-4 text-suave">{u.email}</td>
+                    <td className="py-2.5 px-4">
+                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${u.perfil === 'ADMIN' ? 'bg-roxo/10 text-roxo-texto' : 'bg-marca/10 text-marca-texto'}`}>{t(`admin.perfil.${u.perfil}`)}</span>
+                    </td>
+                    <td className="py-2.5 px-4 text-suave whitespace-nowrap">{formatarData(u.data_cadastro)}</td>
+                    <td className="py-2.5 px-4 text-suave whitespace-nowrap">{formatarData(u.ultimo_acesso)}</td>
+                    <td className="py-2.5 px-4 text-suave tabular-nums">{u.total_acessos.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     )
   }
@@ -257,7 +420,7 @@ export default function AdminCMS({ aoNavegar }) {
 
       <div className="flex items-center gap-1 mb-6 overflow-x-auto pb-2">
         {ABAS.map((a) => (
-          <button key={a} onClick={() => setAba(a)}
+          <button key={a} data-metrica="admin_aba" onClick={() => setAba(a)}
             aria-pressed={aba === a}
             className={`chip whitespace-nowrap ${aba === a ? 'bg-marca/10 text-marca-texto' : ''}`}>
             {a === 'Visão geral' ? t('admin.aba.metricas') : t(`admin.aba.${ROTAS_ABA[a]}`)}
@@ -265,7 +428,14 @@ export default function AdminCMS({ aoNavegar }) {
         ))}
       </div>
 
-      {aba === 'Visão geral' ? renderVisaoGeral() : renderTabela()}
+      {aba === 'Visão geral' && (
+        <>
+          {renderSeletorPeriodo()}
+          {renderVisaoGeral()}
+        </>
+      )}
+      {aba === 'Usuários' && renderUsuarios()}
+      {!ABAS_ESPECIAIS.includes(aba) && renderTabela()}
     </div>
   )
 }

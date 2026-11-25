@@ -22,6 +22,7 @@ export default function Rodape({ aoNavegar }) {
               key={pagina}
               type="button"
               onClick={() => aoNavegar(pagina)}
+              data-metrica={`rodape_${pagina}`}
               className="text-xs font-semibold text-suave transition hover:text-marca-texto"
             >
               {t(chave)}

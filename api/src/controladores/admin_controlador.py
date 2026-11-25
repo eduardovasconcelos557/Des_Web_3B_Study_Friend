@@ -277,92 +277,151 @@ def remover_questao_controlador(questao_id: int):
         conexao.close()
 
 
-def obter_metricas_admin_controlador():
+# Períodos aceitos pelo dashboard: quantos dias olhar para trás (None = desde o início)
+PERIODOS_METRICAS = {"7d": 7, "30d": 30, "total": None}
+
+
+def _filtro_periodo(coluna: str, dias):
+    """Monta o filtro de data (SQL fixo, nunca vem do usuário)."""
+    if dias is None:
+        return "1 = 1"
+    return f"date({coluna}) >= date('now','localtime','-{dias - 1} days')"
+
+
+def obter_metricas_admin_controlador(periodo: str = "7d"):
+    dias = PERIODOS_METRICAS.get(periodo, 7)
+    filtro_cadastro = _filtro_periodo("data_cadastro", dias)
+    filtro_acesso = _filtro_periodo("data_acesso", dias)
+    filtro_evento = _filtro_periodo("data_evento", dias)
+
     conexao = obter_conexao()
     try:
         cursor = conexao.cursor()
         cursor.execute(
-            '''SELECT
+            f"""SELECT
                    (SELECT COUNT(*) FROM usuarios) AS total_perfis,
                    (SELECT COUNT(*) FROM usuarios WHERE perfil = 'ESTUDANTE') AS total_estudantes,
                    (SELECT COUNT(*) FROM usuarios WHERE perfil = 'ADMIN') AS total_administradores,
-                   (SELECT COUNT(*) FROM usuarios
-                    WHERE date(data_cadastro) >= date('now','localtime','-6 days')) AS novos_perfis_7_dias,
-                   (SELECT COUNT(*) FROM acessos_plataforma
-                    WHERE date(data_acesso) >= date('now','localtime','-6 days')) AS acessos_7_dias,
+                   (SELECT COUNT(*) FROM usuarios WHERE {filtro_cadastro}) AS novos_perfis,
+                   (SELECT COUNT(*) FROM acessos_plataforma WHERE {filtro_acesso}) AS acessos,
                    (SELECT COUNT(DISTINCT usuario_id) FROM acessos_plataforma
-                    WHERE date(data_acesso) >= date('now','localtime','-6 days')) AS usuarios_ativos_7_dias,
+                    WHERE {filtro_acesso}) AS usuarios_ativos,
                    (SELECT COUNT(*) FROM eventos_uso
-                    WHERE tipo_evento = 'clique'
-                      AND date(data_evento) >= date('now','localtime','-6 days')) AS cliques_7_dias,
+                    WHERE tipo_evento = 'clique' AND {filtro_evento}) AS cliques,
                    (SELECT COUNT(*) FROM eventos_uso
-                    WHERE tipo_evento = 'visualizacao'
-                      AND date(data_evento) >= date('now','localtime','-6 days')) AS visualizacoes_7_dias,
+                    WHERE tipo_evento = 'visualizacao' AND {filtro_evento}) AS visualizacoes,
                    (SELECT COUNT(*) FROM progresso_aluno) AS questoes_respondidas,
                    (SELECT COUNT(*) FROM disciplinas) AS total_disciplinas,
                    (SELECT COUNT(*) FROM topicos) AS total_topicos,
                    (SELECT COUNT(*) FROM resumos) AS total_resumos,
                    (SELECT COUNT(*) FROM flashcards) AS total_flashcards,
-                   (SELECT COUNT(*) FROM questoes) AS total_questoes'''
+                   (SELECT COUNT(*) FROM questoes) AS total_questoes"""
         )
         resumo = cursor.fetchone()
+
+        # Gráfico: um ponto por dia (7 ou 30 dias) ou por mês (desde o início, até 12 meses)
+        if dias is not None:
+            inicio_serie = f"date('now','localtime','-{dias - 1} days')"
+            passo, fim_serie = "+1 day", "date('now','localtime')"
+            agrupar = "date({col})"
+            rotulo = "strftime('%d/%m', serie.data)"
+        else:
+            inicio_serie = "date('now','localtime','start of month','-11 months')"
+            passo, fim_serie = "+1 month", "date('now','localtime','start of month')"
+            agrupar = "date({col}, 'start of month')"
+            rotulo = "strftime('%m/%Y', serie.data)"
+
         cursor.execute(
-            '''WITH RECURSIVE dias(data) AS (
-                   SELECT date('now','localtime','-6 days')
+            f"""WITH RECURSIVE serie(data) AS (
+                   SELECT {inicio_serie}
                    UNION ALL
-                   SELECT date(data, '+1 day') FROM dias
-                   WHERE data < date('now','localtime')
+                   SELECT date(data, '{passo}') FROM serie
+                   WHERE data < {fim_serie}
                ),
                acessos AS (
-                   SELECT date(data_acesso) AS data, COUNT(*) AS total
+                   SELECT {agrupar.format(col='data_acesso')} AS data, COUNT(*) AS total
                    FROM acessos_plataforma
-                   WHERE date(data_acesso) >= date('now','localtime','-6 days')
-                   GROUP BY date(data_acesso)
+                   WHERE date(data_acesso) >= {inicio_serie}
+                   GROUP BY 1
                ),
                eventos AS (
-                   SELECT date(data_evento) AS data,
+                   SELECT {agrupar.format(col='data_evento')} AS data,
                           SUM(CASE WHEN tipo_evento = 'clique' THEN 1 ELSE 0 END) AS cliques,
                           SUM(CASE WHEN tipo_evento = 'visualizacao' THEN 1 ELSE 0 END) AS visualizacoes
                    FROM eventos_uso
-                   WHERE date(data_evento) >= date('now','localtime','-6 days')
-                   GROUP BY date(data_evento)
+                   WHERE date(data_evento) >= {inicio_serie}
+                   GROUP BY 1
                ),
                cadastros AS (
-                   SELECT date(data_cadastro) AS data, COUNT(*) AS total
+                   SELECT {agrupar.format(col='data_cadastro')} AS data, COUNT(*) AS total
                    FROM usuarios
-                   WHERE date(data_cadastro) >= date('now','localtime','-6 days')
-                   GROUP BY date(data_cadastro)
+                   WHERE date(data_cadastro) >= {inicio_serie}
+                   GROUP BY 1
                )
-               SELECT strftime('%d/%m', dias.data) AS data,
+               SELECT {rotulo} AS data,
                       COALESCE(acessos.total, 0) AS acessos,
                       COALESCE(cadastros.total, 0) AS cadastros,
                       COALESCE(eventos.cliques, 0) AS cliques,
                       COALESCE(eventos.visualizacoes, 0) AS visualizacoes
-               FROM dias
-               LEFT JOIN acessos ON acessos.data = dias.data
-               LEFT JOIN cadastros ON cadastros.data = dias.data
-               LEFT JOIN eventos ON eventos.data = dias.data
-               ORDER BY dias.data'''
+               FROM serie
+               LEFT JOIN acessos ON acessos.data = serie.data
+               LEFT JOIN cadastros ON cadastros.data = serie.data
+               LEFT JOIN eventos ON eventos.data = serie.data
+               ORDER BY serie.data"""
         )
-        atividade_diaria = cursor.fetchall()
+        atividade = cursor.fetchall()
+
         cursor.execute(
-            '''SELECT pagina,
+            f"""SELECT pagina,
                       SUM(CASE WHEN tipo_evento = 'visualizacao' THEN 1 ELSE 0 END) AS visualizacoes,
                       SUM(CASE WHEN tipo_evento = 'clique' THEN 1 ELSE 0 END) AS cliques,
                       COUNT(*) AS interacoes
                FROM eventos_uso
-               WHERE date(data_evento) >= date('now','localtime','-6 days')
+               WHERE {filtro_evento}
                GROUP BY pagina
-               ORDER BY visualizacoes DESC, interacoes DESC
-               LIMIT 5'''
+               ORDER BY visualizacoes DESC, interacoes DESC"""
         )
+        funcoes = cursor.fetchall()
+
+        # Conta-cliques: botões identificados com data-metrica no frontend
+        cursor.execute(
+            f"""SELECT acao, COUNT(*) AS cliques, COUNT(DISTINCT pagina) AS paginas
+               FROM eventos_uso
+               WHERE tipo_evento = 'clique' AND acao IS NOT NULL AND {filtro_evento}
+               GROUP BY acao
+               ORDER BY cliques DESC, acao
+               LIMIT 10"""
+        )
+        botoes = cursor.fetchall()
+
         return {
             "sucesso": True,
             "dados": {
                 **resumo,
-                "atividade_diaria": atividade_diaria,
-                "funcoes_mais_utilizadas": cursor.fetchall(),
+                "periodo": periodo if periodo in PERIODOS_METRICAS else "7d",
+                "atividade": atividade,
+                "funcoes_mais_utilizadas": funcoes,
+                "botoes_mais_clicados": botoes,
             },
         }
+    finally:
+        conexao.close()
+
+
+def listar_usuarios_admin_controlador():
+    """Lista os perfis cadastrados com último acesso e total de acessos (sem senha)."""
+    conexao = obter_conexao()
+    try:
+        cursor = conexao.cursor()
+        cursor.execute(
+            """SELECT u.id, u.nome, u.email, u.perfil, u.data_cadastro,
+                      MAX(a.data_acesso) AS ultimo_acesso,
+                      COUNT(a.id) AS total_acessos
+               FROM usuarios u
+               LEFT JOIN acessos_plataforma a ON a.usuario_id = u.id
+               GROUP BY u.id
+               ORDER BY u.data_cadastro DESC, u.id DESC"""
+        )
+        return {"sucesso": True, "dados": cursor.fetchall()}
     finally:
         conexao.close()
